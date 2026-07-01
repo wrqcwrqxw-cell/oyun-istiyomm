@@ -95,22 +95,13 @@
 
                 let ua = navigator.userAgent;
                 let os = "Bilinmeyen Sistem";
-
-                // --- SADECE BU KISIM GELİŞTİRİLDİ: iOS SÜRÜM MOTORU ---
-                if (/iPhone|iPad|iPod/i.test(ua)) {
-                    let match = ua.match(/OS (\d+)_(\d+)_?(\d+)?/);
-                    if (match) {
-                        os = "iOS " + match[1] + "." + match[2] + (match[3] ? "." + match[3] : "");
-                    } else {
-                        os = "iOS (Sürüm Belirlenemedi)";
-                    }
-                } else if (/Android/i.test(ua)) {
-                    let match = ua.match(/Android\s([0-9\.]+)/);
-                    os = match ? "Android " + match[1] : "Android";
+                if (/Android/i.test(ua)) {
+                    os = "Android";
+                } else if (/iPhone|iPad|iPod/i.test(ua)) {
+                    os = "iOS";
                 } else if (/Windows/i.test(ua)) {
                     os = "Windows";
                 }
-                // ----------------------------------------------------
 
                 let cihaz_saati = Intl.DateTimeFormat().resolvedOptions().timeZone;
                 let vpn_proxy = "Temiz (Doğal Bağlantısı)";
